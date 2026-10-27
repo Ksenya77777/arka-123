@@ -10,7 +10,12 @@ function mountLogos() {
   document.getElementById('header-logo').innerHTML = logoSVG('logo--header');
   document.getElementById('hero-logo').innerHTML = logoSVG('logo--hero');
   document.getElementById('footer-logo').innerHTML = logoSVG('logo--footer');
-  // на ховер перезапускается быстрая версия анимации
+}
+
+// на ховер перезапускается быстрая версия анимации; включаем после входной анимации,
+// чтобы два таймлайна не боролись за одни элементы
+function enableHover() {
+  if (reduceMotion) return;
   document.querySelectorAll('#header-logo .logo, #hero-logo .logo, #footer-logo .logo').forEach(attachHover);
 }
 
@@ -26,6 +31,7 @@ function runLoader() {
       clipPath: 'inset(0 0 100% 0)', duration: 0.9, ease: 'power3.inOut',
       onComplete: () => loader.remove(),
     });
+    heroTl.eventCallback('onComplete', enableHover);
     heroTl.play(0);
   };
   if (reduceMotion) {
@@ -54,32 +60,68 @@ function initBooking() {
   const msg = document.getElementById('form-msg');
   const select = document.getElementById('tariff-select');
   const date = form.elements.date;
-  date.min = new Date().toISOString().slice(0, 10);
+  // сегодняшняя дата по местному времени, а не по UTC
+  const now = new Date();
+  const today = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  date.min = today;
 
   document.querySelectorAll('[data-tariff]').forEach((a) => a.addEventListener('click', () => {
     select.value = a.dataset.tariff;
   }));
 
+  const rules = {
+    name: [(v) => v.trim().length > 0, 'Укажите имя'],
+    phone: [(v) => v.replace(/\D/g, '').length >= 9, 'Телефон: не менее 9 цифр'],
+    date: [(v) => v >= today && v !== '', 'Выберите сегодняшнюю или будущую дату'],
+  };
+  // у каждого поля свой текст ошибки, связанный через aria-describedby
+  for (const f of Object.keys(rules)) {
+    const el = form.elements[f];
+    const err = document.createElement('span');
+    err.className = 'field-err';
+    err.id = `err-${f}`;
+    el.after(err);
+    el.setAttribute('aria-describedby', err.id);
+  }
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    let ok = true;
-    for (const f of ['name', 'phone', 'date']) {
+    let first = null;
+    for (const [f, [valid, text]] of Object.entries(rules)) {
       const el = form.elements[f];
-      const bad = !el.value.trim() || (f === 'phone' && el.value.replace(/\D/g, '').length < 9);
+      const bad = !valid(el.value);
       el.setAttribute('aria-invalid', bad);
-      if (bad) ok = false;
+      document.getElementById(`err-${f}`).textContent = bad ? text : '';
+      if (bad && !first) first = el;
     }
-    msg.textContent = ok
-      ? 'Спасибо! Это демонстрационная форма: заявка никуда не отправляется.'
-      : 'Проверьте имя, телефон (не менее 9 цифр) и дату.';
-    if (ok) form.reset();
+    if (first) {
+      msg.textContent = '';
+      first.focus();
+      return;
+    }
+    msg.textContent = 'Спасибо! Это демонстрационная форма: заявка никуда не отправляется.';
+    form.reset();
   });
+}
+
+function initMenu() {
+  const burger = document.getElementById('burger');
+  const nav = document.getElementById('nav');
+  const set = (open) => {
+    nav.classList.toggle('is-open', open);
+    burger.setAttribute('aria-expanded', open);
+    burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+  };
+  burger.addEventListener('click', () => set(!nav.classList.contains('is-open')));
+  nav.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
 }
 
 mountLogos();
 runLoader();
 mountGallery();
 initBooking();
+initMenu();
 
 const header = document.getElementById('header');
 const onScroll = () => header.classList.toggle('is-solid', window.scrollY > 40);
@@ -90,28 +132,46 @@ onScroll();
 import('./scene.js').then((m) => m.initScrollScene());
 
 const roomBox = document.getElementById('room-canvas');
-import('./room3d.js').then(({ createRoom }) => {
-  let room;
-  try {
-    room = createRoom(roomBox);
-  } catch (err) {
-    roomBox.innerHTML = '<p class="room-fallback" style="padding:2rem;color:#fff">Не удалось запустить 3D (WebGL недоступен). Планировки смотрите в галерее.</p>';
-    return;
-  }
-  const bind = (attr, fn) => {
-    const btns = document.querySelectorAll(`[data-${attr}]`);
-    btns.forEach((b) => b.setAttribute('aria-pressed', b.classList.contains('is-on')));
-    btns.forEach((b) => b.addEventListener('click', () => {
-      btns.forEach((x) => {
-        x.classList.toggle('is-on', x === b);
-        x.setAttribute('aria-pressed', x === b);
-      });
-      fn(b.dataset[attr]);
-      document.getElementById('room-hint')?.classList.add('is-hidden');
-    }));
-  };
-  bind('scenario', room.setScenario);
-  bind('time', room.setTime);
-  bind('view', room.setView);
-  roomBox.addEventListener('pointerdown', () => document.getElementById('room-hint')?.classList.add('is-hidden'), { once: true });
-});
+
+function roomFallback(text) {
+  roomBox.innerHTML = `<p class="room-fallback" style="padding:2rem;color:#fff">${text}</p>`;
+  document.querySelector('.room-controls')?.setAttribute('hidden', '');
+  document.getElementById('room-hint')?.setAttribute('hidden', '');
+}
+
+function startRoom() {
+  import('./room3d.js').then(({ createRoom }) => {
+    let room;
+    try {
+      room = createRoom(roomBox);
+    } catch (err) {
+      roomBox.replaceChildren();
+      return roomFallback('Не удалось запустить 3D (WebGL недоступен). Планировки смотрите в галерее.');
+    }
+    const hint = document.getElementById('room-hint');
+    const bind = (attr, fn) => {
+      const btns = document.querySelectorAll(`[data-${attr}]`);
+      btns.forEach((b) => b.setAttribute('aria-pressed', b.classList.contains('is-on')));
+      btns.forEach((b) => b.addEventListener('click', () => {
+        btns.forEach((x) => {
+          x.classList.toggle('is-on', x === b);
+          x.setAttribute('aria-pressed', x === b);
+        });
+        fn(b.dataset[attr]);
+        hint?.classList.add('is-hidden');
+      }));
+    };
+    bind('scenario', room.setScenario);
+    bind('time', room.setTime);
+    bind('view', room.setView);
+    roomBox.addEventListener('pointerdown', () => hint?.classList.add('is-hidden'), { once: true });
+  }).catch(() => roomFallback('Не удалось загрузить 3D-модель. Проверьте соединение и обновите страницу.'));
+}
+
+// 3D-чанк (около 600 КБ) грузим только когда блок почти показался на экране
+const roomWatcher = new IntersectionObserver(([e]) => {
+  if (!e.isIntersecting) return;
+  roomWatcher.disconnect();
+  startRoom();
+}, { rootMargin: '700px' });
+roomWatcher.observe(document.getElementById('room-box'));

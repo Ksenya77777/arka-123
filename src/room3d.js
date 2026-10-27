@@ -136,14 +136,17 @@ function chairFactory() {
 
 export function createRoom(container) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   container.appendChild(renderer.domElement);
   renderer.domElement.setAttribute('role', 'img');
-  renderer.domElement.setAttribute('aria-label', '3D-модель помещения АРКА 123: можно вращать мышью или пальцем');
+  renderer.domElement.setAttribute('aria-label', '3D-модель помещения АРКА 123: вращайте мышью, пальцем или стрелками клавиатуры');
+  renderer.domElement.tabIndex = 0;
+  renderer.domElement.addEventListener('webglcontextlost', (e) => e.preventDefault());
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const scene = new THREE.Scene();
   scene.background = skyTexture(TIMES.day.top, TIMES.day.bottom);
@@ -159,9 +162,16 @@ export function createRoom(container) {
   controls.maxDistance = 4.4;
   controls.maxPolarAngle = Math.PI / 2 + 0.1;
   controls.minPolarAngle = 0.55;
-  controls.autoRotate = true;
+  // OrbitControls ставит touch-action: none и отнимает у страницы вертикальный скролл на телефоне
+  renderer.domElement.style.touchAction = 'pan-y';
+  controls.listenToKeyEvents(renderer.domElement);
+  controls.autoRotate = !reduceMotion;
+  controls.enableDamping = !reduceMotion;
   controls.autoRotateSpeed = 0.7;
-  controls.addEventListener('start', () => { controls.autoRotate = false; });
+  const stopAuto = () => { controls.autoRotate = false; };
+  controls.addEventListener('start', stopAuto);
+  renderer.domElement.addEventListener('keydown', stopAuto);
+  renderer.domElement.addEventListener('focus', stopAuto);
 
   // --- помещение ---
   const wallMat = new THREE.MeshStandardMaterial({ map: chipboardTexture(), roughness: 0.85 });
@@ -216,7 +226,8 @@ export function createRoom(container) {
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   const sc = sun.shadow.camera;
-  sc.left = -12; sc.right = 12; sc.top = 12; sc.bottom = -12; sc.near = 1; sc.far = 80;
+  sc.left = -8; sc.right = 8; sc.top = 8; sc.bottom = -8; sc.near = 1; sc.far = 80;
+  sc.updateProjectionMatrix();
   sun.shadow.bias = -0.0005;
   sun.target.position.set(0, 0, 0);
   scene.add(sun, sun.target);
@@ -330,20 +341,25 @@ export function createRoom(container) {
     },
   };
 
+  // сценарии строятся один раз и переиспользуются: нет утечек GPU-памяти при переключении
+  const cache = {};
   let current = null;
   let currentKey = null;
   const setScenario = (key) => {
     if (key === currentKey) return;
     currentKey = key;
-    const next = (scenarios[key] ?? scenarios.empty)();
+    cache[key] ??= (scenarios[key] ?? scenarios.empty)();
+    const next = cache[key];
     const old = current;
     current = next;
+    gsap.killTweensOf(next.scale);
     scene.add(next);
     next.scale.setScalar(0.001);
-    gsap.to(next.scale, { x: 1, y: 1, z: 1, duration: 0.7, ease: 'back.out(1.4)' });
+    gsap.to(next.scale, { x: 1, y: 1, z: 1, duration: reduceMotion ? 0 : 0.7, ease: 'back.out(1.4)' });
     if (old) {
+      gsap.killTweensOf(old.scale);
       gsap.to(old.scale, {
-        x: 0.001, y: 0.001, z: 0.001, duration: 0.3, ease: 'power2.in',
+        x: 0.001, y: 0.001, z: 0.001, duration: reduceMotion ? 0 : 0.3, ease: 'power2.in',
         onComplete: () => scene.remove(old),
       });
     }
@@ -354,11 +370,18 @@ export function createRoom(container) {
   const setView = (mode) => {
     controls.autoRotate = false;
     const goPlan = mode === 'plan';
-    controls.minPolarAngle = goPlan ? 0 : 0.55;
-    controls.maxDistance = goPlan ? 15 : 4.4;
+    gsap.killTweensOf(camera.position);
+    // ограничения сначала расширяем, а при возврате внутрь возвращаем только после перелёта
+    controls.minPolarAngle = 0;
+    controls.maxDistance = 15;
     const to = goPlan ? { x: 0.01, y: 14, z: 6 } : { x: 0, y: 1.7, z: 4.4 };
     gsap.to(camera.position, {
-      ...to, duration: 1.1, ease: 'power2.inOut', onUpdate: () => controls.update(),
+      ...to, duration: reduceMotion ? 0 : 1.1, ease: 'power2.inOut',
+      onUpdate: () => controls.update(),
+      onComplete: () => {
+        if (!goPlan) { controls.minPolarAngle = 0.55; controls.maxDistance = 4.4; }
+        controls.update();
+      },
     });
   };
 

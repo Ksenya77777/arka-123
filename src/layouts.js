@@ -4,7 +4,7 @@ const RW = 120; // 12 м
 const RD = 102.5; // 10,25 м
 
 const room = (inner) => `
-<svg viewBox="-8 -8 ${RW + 16} ${RD + 16}" xmlns="http://www.w3.org/2000/svg" role="img">
+<svg viewBox="-8 -8 ${RW + 16} ${RD + 16}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <rect x="0" y="0" width="${RW}" height="${RD}" fill="#f5f0e7" stroke="#2a2b2e" stroke-width="2.4"/>
   <!-- арочные окна на верхней стене -->
   <rect x="15" y="-3" width="40" height="5" fill="#9fc0dd" stroke="#2a2b2e" stroke-width="1.2"/>
@@ -65,7 +65,7 @@ export const layouts = {
 // Виды: окно и арка
 export const views = {
   library: () => `
-<svg viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="xMidYMid slice">
+<svg viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
   <defs><linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fb5db"/><stop offset="1" stop-color="#f6e4c8"/></linearGradient></defs>
   <rect width="240" height="300" fill="url(#vg)"/>
   <ellipse cx="70" cy="70" rx="34" ry="9" fill="#fff" opacity=".85"/>
@@ -78,7 +78,7 @@ export const views = {
   <rect y="240" width="240" height="60" fill="#8a9a7a"/>
 </svg>`,
   arch: () => `
-<svg viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="xMidYMid slice">
+<svg viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
   <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2b2e"/><stop offset="1" stop-color="#3a3b3f"/></linearGradient>
   <linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcd3e6"/><stop offset="1" stop-color="#f3e6cf"/></linearGradient></defs>
   <rect width="240" height="300" fill="url(#ag)"/>

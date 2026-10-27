@@ -96,10 +96,8 @@ export function initScrollScene() {
   stops.forEach((s, i) => {
     tl.to(host, { x: s.x, y: s.y, rotation: s.rotate, scale: s.scale, duration: 1, ease: 'sine.inOut' }, i === 0 ? '>' : '>');
   });
-  // в начале страницы персонажа нет, в героя он не заходит
-  ScrollTrigger.create({
-    trigger: '.hero', start: 'bottom 60%', onEnterBack: () => gsap.to(host, { opacity: 0, duration: 0.3, overwrite: 'auto' }),
-  });
+  // после загрузки шрифтов высоты блоков меняются
+  document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
   // мягкое появление контента блоков
   gsap.utils.toArray('.section > .wrap > *').forEach((el) => {
