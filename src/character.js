@@ -92,8 +92,8 @@ export function animateCharacter(svg) {
   const legR = svg.querySelector('.ch-leg-r');
   const brooch = svg.querySelector('.ch-brooch');
 
-  gsap.set(armR, { transformOrigin: '248px 250px' });
-  gsap.set(armL, { transformOrigin: '72px 250px' });
+  gsap.set(armR, { svgOrigin: '248 250' });
+  gsap.set(armL, { svgOrigin: '72 250' });
   gsap.set(eyes, { transformOrigin: '50% 50%' });
 
   gsap.to(body, { y: -6, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
@@ -114,8 +114,8 @@ export function animateCharacter(svg) {
     // левая рука показывает на содержимое страницы (в сторону от края экрана)
     point() {
       wave?.kill();
-      gsap.to(armR, { rotation: -28, duration: 0.6, ease: 'power2.out', overwrite: 'auto' });
-      gsap.to(armL, { rotation: -62, duration: 0.7, ease: 'back.out(1.6)', overwrite: 'auto' });
+      gsap.to(armR, { rotation: 35, duration: 0.6, ease: 'power2.out', overwrite: 'auto' });
+      gsap.to(armL, { rotation: 62, duration: 0.7, ease: 'back.out(1.6)', overwrite: 'auto' });
     },
     rest() {
       wave?.kill();
@@ -127,8 +127,8 @@ export function animateCharacter(svg) {
   // шаги: ноги качаются в такт прокрутке страницы
   const step = (scrollY) => {
     const v = Math.sin(scrollY / 28) * 5;
-    gsap.set(legL, { y: v, rotation: v * 0.3, transformOrigin: '125px 372px' });
-    gsap.set(legR, { y: -v, rotation: -v * 0.3, transformOrigin: '195px 372px' });
+    gsap.set(legL, { y: v, rotation: v * 0.3, svgOrigin: '125 372' });
+    gsap.set(legR, { y: -v, rotation: -v * 0.3, svgOrigin: '195 372' });
   };
   return { pose: (name) => poses[name]?.(), step };
 }
