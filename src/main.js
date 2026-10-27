@@ -100,8 +100,12 @@ import('./room3d.js').then(({ createRoom }) => {
   }
   const bind = (attr, fn) => {
     const btns = document.querySelectorAll(`[data-${attr}]`);
+    btns.forEach((b) => b.setAttribute('aria-pressed', b.classList.contains('is-on')));
     btns.forEach((b) => b.addEventListener('click', () => {
-      btns.forEach((x) => x.classList.toggle('is-on', x === b));
+      btns.forEach((x) => {
+        x.classList.toggle('is-on', x === b);
+        x.setAttribute('aria-pressed', x === b);
+      });
       fn(b.dataset[attr]);
       document.getElementById('room-hint')?.classList.add('is-hidden');
     }));
