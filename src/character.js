@@ -24,10 +24,14 @@ export function characterSVG() {
 
   <g class="ch-body">
     <!-- ноги-колонны -->
-    <rect x="108" y="372" width="34" height="62" rx="4" fill="#3a3b3f"/>
-    <rect x="178" y="372" width="34" height="62" rx="4" fill="#3a3b3f"/>
-    <rect x="100" y="426" width="50" height="14" rx="7" fill="url(#${id}b)"/>
-    <rect x="170" y="426" width="50" height="14" rx="7" fill="url(#${id}b)"/>
+    <g class="ch-leg-l">
+      <rect x="108" y="372" width="34" height="62" rx="4" fill="#3a3b3f"/>
+      <rect x="100" y="426" width="50" height="14" rx="7" fill="url(#${id}b)"/>
+    </g>
+    <g class="ch-leg-r">
+      <rect x="178" y="372" width="34" height="62" rx="4" fill="#3a3b3f"/>
+      <rect x="170" y="426" width="50" height="14" rx="7" fill="url(#${id}b)"/>
+    </g>
 
     <!-- левая рука (показывает на гостя) -->
     <g class="ch-arm-l">
@@ -77,12 +81,15 @@ export function characterSVG() {
 </svg>`;
 }
 
-// Живые мелочи: дыхание, моргание, приветственный взмах, плывущие облака.
+// Живые мелочи: дыхание, моргание, плывущие облака, пульсация броши.
+// Возвращает управление позами и «шагами» для анимации на скролле.
 export function animateCharacter(svg) {
   const body = svg.querySelector('.ch-body');
   const eyes = svg.querySelectorAll('.ch-eye');
   const armR = svg.querySelector('.ch-arm-r');
   const armL = svg.querySelector('.ch-arm-l');
+  const legL = svg.querySelector('.ch-leg-l');
+  const legR = svg.querySelector('.ch-leg-r');
   const brooch = svg.querySelector('.ch-brooch');
 
   gsap.set(armR, { transformOrigin: '248px 250px' });
@@ -90,10 +97,38 @@ export function animateCharacter(svg) {
   gsap.set(eyes, { transformOrigin: '50% 50%' });
 
   gsap.to(body, { y: -6, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
-  gsap.to(armR, { rotation: 14, duration: 0.45, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 2.2 });
-  gsap.to(armL, { rotation: -4, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
   gsap.to(svg.querySelector('.ch-cloud'), { x: 18, duration: 6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
   gsap.to(svg.querySelector('.ch-cloud2'), { x: -14, duration: 8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
   gsap.to(eyes, { scaleY: 0.08, duration: 0.09, yoyo: true, repeat: -1, repeatDelay: 3.4 });
   gsap.to(brooch, { scale: 1.08, transformOrigin: '50% 50%', duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+
+  let wave = null;
+  const poses = {
+    // приветственный взмах правой рукой
+    wave() {
+      gsap.to(armL, { rotation: 0, duration: 0.5, overwrite: 'auto' });
+      wave?.kill();
+      gsap.to(armR, { rotation: 0, duration: 0.3, overwrite: 'auto' });
+      wave = gsap.to(armR, { rotation: 16, duration: 0.4, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 0.3 });
+    },
+    // левая рука показывает на содержимое страницы (в сторону от края экрана)
+    point() {
+      wave?.kill();
+      gsap.to(armR, { rotation: -28, duration: 0.6, ease: 'power2.out', overwrite: 'auto' });
+      gsap.to(armL, { rotation: -62, duration: 0.7, ease: 'back.out(1.6)', overwrite: 'auto' });
+    },
+    rest() {
+      wave?.kill();
+      gsap.to([armR, armL], { rotation: 0, duration: 0.6, ease: 'power2.out', overwrite: 'auto' });
+    },
+  };
+  poses.wave();
+
+  // шаги: ноги качаются в такт прокрутке страницы
+  const step = (scrollY) => {
+    const v = Math.sin(scrollY / 28) * 5;
+    gsap.set(legL, { y: v, rotation: v * 0.3, transformOrigin: '125px 372px' });
+    gsap.set(legR, { y: -v, rotation: -v * 0.3, transformOrigin: '195px 372px' });
+  };
+  return { pose: (name) => poses[name]?.(), step };
 }

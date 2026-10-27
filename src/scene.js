@@ -20,14 +20,44 @@ export function initScrollScene() {
     <polygon points="-60,0 -38,-40 38,-40 60,0 38,40 -38,40" fill="#d9e4ee" stroke="#7d93a8" stroke-width="2"/>
     <polygon points="-38,-40 0,-62 38,-40" fill="#eef4f9" stroke="#7d93a8" stroke-width="2"/>
     <path d="M-38 -40V40M38 -40V40M-60 0H60" stroke="#7d93a8" stroke-width="1.6"/></svg>`;
-  host.innerHTML = characterSVG();
+  host.innerHTML = `<p class="ch-bubble" id="ch-bubble"></p>${characterSVG()}`;
   const ch = host.querySelector('svg');
-  if (!reduce) animateCharacter(ch);
+  const bubble = document.getElementById('ch-bubble');
 
   if (reduce) {
+    bubble.textContent = 'Встречаемся напротив Библиотеки';
     gsap.set(host, { opacity: 1 });
     return;
   }
+  const hero = animateCharacter(ch);
+
+  // Арчи ведёт экскурсию: в каждом блоке у него своя реплика и поза
+  const tour = [
+    { id: '#about',    pose: 'wave',  say: 'Здравствуйте! Я Арчи, хозяин АРКА 123. Давайте покажу зал.' },
+    { id: '#space',    pose: 'point', say: 'Вот наш зал. Покрутите его сами и расставьте мебель под свой формат.' },
+    { id: '#services', pose: 'point', say: 'Проектор, звук, кофе-брейк: всё для вашего мероприятия.' },
+    { id: '#prices',   pose: 'point', say: 'Чаще всего берут «Полдня»: четыре часа и ничего лишнего.' },
+    { id: '#gallery',  pose: 'point', say: 'А из наших окон открывается вот такой вид на Библиотеку.' },
+    { id: '#reviews',  pose: 'rest',  say: 'Организаторы нас хвалят. Проверьте сами.' },
+    { id: '#booking',  pose: 'wave',  say: 'Ну что, встречаемся напротив Библиотеки?' },
+  ];
+  let sayTimer = 0;
+  const say = (text) => {
+    clearTimeout(sayTimer);
+    gsap.to(bubble, { opacity: 0, y: 6, duration: 0.2, onComplete: () => {
+      bubble.textContent = text;
+      gsap.to(bubble, { opacity: 1, y: 0, duration: 0.35 });
+    } });
+    // реплика исчезает через несколько секунд, чтобы не мешать чтению
+    sayTimer = setTimeout(() => gsap.to(bubble, { opacity: 0, duration: 0.5 }), 7000);
+  };
+  tour.forEach((t) => ScrollTrigger.create({
+    trigger: t.id, start: 'top 55%', end: 'bottom 55%',
+    onEnter: () => { hero.pose(t.pose); say(t.say); },
+    onEnterBack: () => { hero.pose(t.pose); say(t.say); },
+  }));
+  // шаги: ноги двигаются, пока страница прокручивается
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => hero.step(self.scroll()) });
 
   // небо: утро → день → вечер на всём протяжении страницы
   gsap.timeline({

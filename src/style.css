@@ -250,3 +250,10 @@ main, footer { position: relative; z-index: 1; }
   .seg-title { min-width: 100%; }
   .footer-in { grid-template-columns: 1fr; }
 }
+
+/* реплики Арчи */
+.ch-bubble {
+  position: absolute; right: 8%; bottom: calc(100% + 6px); width: max-content; max-width: min(260px, 64vw);
+  margin: 0; padding: .7em 1em; border-radius: 16px 16px 4px 16px; background: var(--paper); color: var(--ink);
+  font: 500 .88rem/1.35 var(--font-body); box-shadow: 0 8px 24px rgba(0, 0, 0, .2); opacity: 0; pointer-events: none;
+}
