@@ -112,3 +112,141 @@ main, footer { position: relative; z-index: 1; }
   html { scroll-behavior: auto; }
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* ---------- сцена-фон ---------- */
+.scene-sky { --a: #bcd3e6; --b: #f3e6cf; background: linear-gradient(var(--a), var(--b)); }
+.scene-arch {
+  position: absolute; left: 50%; bottom: -2vh; width: min(72vmin, 560px); height: 88vh;
+  transform: translateX(-50%); transform-origin: 50% 86%; opacity: 0;
+}
+.scene-library { position: absolute; right: 7%; bottom: 20%; width: clamp(110px, 15vw, 210px); opacity: .55; }
+.scene-library svg { width: 100%; height: auto; }
+.scene-character {
+  position: fixed; z-index: 30; right: 2vw; bottom: 1vh; width: clamp(86px, 13vw, 190px);
+  pointer-events: none; opacity: 0; filter: drop-shadow(0 10px 18px rgba(0,0,0,.22));
+}
+.scene-character svg { width: 100%; height: auto; overflow: visible; }
+
+/* ---------- секции и карточки ---------- */
+.section { padding: clamp(40px, 7vw, 80px) 0; }
+.section > .wrap {
+  background: rgba(245, 240, 231, .95); border-radius: 26px;
+  padding: clamp(24px, 4.4vw, 64px); box-shadow: 0 18px 50px rgba(30, 30, 40, .12);
+}
+.section > .wrap.card-none { background: none; box-shadow: none; padding: 0; }
+.section--dark > .wrap { background: var(--graphite); color: var(--paper); }
+.section--dark h2 { color: var(--paper); }
+.eyebrow--light { color: #d9b56c; }
+.lead { font-size: 1.12rem; max-width: 58ch; color: var(--muted); }
+.section--dark .lead { color: #c8c4bb; }
+.note { font-size: .85rem; color: var(--muted); margin-top: 1.4rem; }
+.scroll-hint {
+  position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+  font-size: .75rem; letter-spacing: .24em; text-transform: uppercase; text-decoration: none; color: var(--graphite);
+}
+.scroll-hint::after { content: ''; display: block; width: 1px; height: 34px; margin: 8px auto 0; background: currentColor; animation: hint 1.8s ease-in-out infinite; transform-origin: top; }
+@keyframes hint { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+
+/* об АРКА 123 */
+.about p { max-width: 70ch; }
+.facts { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+.facts li { border-top: 2px solid var(--brass); padding-top: .9rem; }
+.facts b { display: block; font: 600 1.9rem/1.1 var(--font-display); color: var(--graphite); }
+.facts span { font-size: .88rem; color: var(--muted); }
+
+/* 3D-комната */
+.room { position: relative; margin-top: 2rem; border-radius: 18px; overflow: hidden; background: #111; aspect-ratio: 16 / 9; min-height: 340px; }
+.room-canvas, .room-canvas canvas { width: 100%; height: 100%; display: block; }
+.room-canvas canvas { touch-action: pan-y; cursor: grab; }
+.room-canvas canvas:active { cursor: grabbing; }
+.room-hint {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  background: rgba(20, 20, 22, .66); color: var(--paper); padding: .45em 1.1em; border-radius: 999px;
+  font-size: .82rem; pointer-events: none; transition: opacity .5s; white-space: nowrap;
+}
+.room-hint.is-hidden { opacity: 0; }
+.room-controls { display: grid; gap: .9rem; margin-top: 1.4rem; }
+.seg { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.seg-title { font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: #a9a59b; min-width: 150px; }
+.seg-btn {
+  font: 500 .9rem var(--font-body); color: var(--paper); background: transparent; cursor: pointer;
+  border: 1.5px solid rgba(245, 240, 231, .35); border-radius: 999px; padding: .5em 1.15em; transition: all .25s;
+}
+.seg-btn:hover { border-color: var(--paper); }
+.seg-btn.is-on { background: var(--brass); border-color: var(--brass); color: #1b1b1d; font-weight: 700; }
+.specs { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; font-size: .92rem; color: #c8c4bb; }
+.specs b { display: block; color: #d9b56c; font-weight: 600; margin-bottom: .2rem; }
+
+/* услуги */
+.services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2rem; }
+.svc { border: 1.5px solid rgba(0, 0, 0, .1); border-radius: var(--radius); padding: 1.4rem; background: #fbf8f2; display: flex; flex-direction: column; transition: transform .3s, box-shadow .3s; }
+.svc:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0, 0, 0, .1); }
+.svc h3 { font-size: 1.5rem; margin-bottom: .3rem; }
+.svc p { color: var(--muted); font-size: .94rem; flex: 1; }
+.svc b { color: var(--brass-dark); font-weight: 700; }
+
+/* тарифы */
+.tariffs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4rem; margin-top: 2rem; align-items: stretch; }
+.tariff { position: relative; border: 1.5px solid rgba(0, 0, 0, .12); border-radius: 20px; padding: 2rem 1.8rem; background: #fbf8f2; display: flex; flex-direction: column; }
+.tariff--main { background: var(--graphite); color: var(--paper); border-color: var(--graphite); transform: translateY(-10px); }
+.tariff h3 { font-size: 1.9rem; }
+.price { font: 600 3.6rem/1 var(--font-display); margin: .2rem 0 1rem; }
+.price span { font: 500 .9rem var(--font-body); opacity: .7; }
+.tariff ul { list-style: none; padding: 0; margin: 0 0 1.6rem; flex: 1; }
+.tariff li { padding: .45rem 0 .45rem 1.5rem; position: relative; font-size: .95rem; }
+.tariff li::before { content: ''; position: absolute; left: 0; top: .85rem; width: 9px; height: 9px; border-radius: 50% 50% 0 0; border: 2px solid var(--brass); border-bottom: 0; }
+.tariff .btn { justify-content: center; }
+.tariff--main .btn--solid { background: var(--brass); border-color: var(--brass); color: #1b1b1d; }
+.badge { position: absolute; top: -13px; left: 1.8rem; background: var(--brass); color: #1b1b1d; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .3em .9em; border-radius: 999px; }
+
+/* галерея */
+.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+.shot { margin: 0; border-radius: var(--radius); overflow: hidden; background: #fbf8f2; border: 1.5px solid rgba(0, 0, 0, .1); transition: transform .35s, box-shadow .35s; }
+.shot:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 14px 30px rgba(0, 0, 0, .14); }
+.shot svg { width: 100%; height: 240px; background: #ebe4d6; }
+.shot figcaption { padding: .9rem 1.1rem 1.1rem; }
+.shot b { display: block; font: 600 1.25rem var(--font-display); }
+.shot span { font-size: .85rem; color: var(--muted); }
+
+/* отзывы */
+.reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2rem; }
+.review { margin: 0; background: #fbf8f2; border-radius: var(--radius); padding: 1.6rem; border: 1.5px solid rgba(0, 0, 0, .08); }
+.review blockquote { margin: 0 0 1rem; font: 500 1.28rem/1.35 var(--font-display); }
+.review blockquote::before { content: '«'; color: var(--brass); }
+.review blockquote::after { content: '»'; color: var(--brass); }
+.review figcaption { font-size: .88rem; color: var(--muted); }
+.review figcaption b { color: var(--ink); }
+
+/* бронирование */
+.booking { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(1.5rem, 4vw, 4rem); align-items: start; }
+.booking form { display: grid; gap: 1rem; }
+.booking label { display: grid; gap: .35rem; font-size: .85rem; font-weight: 600; color: var(--muted); }
+.booking input, .booking select {
+  font: 500 1rem var(--font-body); padding: .8em 1em; border-radius: 12px; border: 1.5px solid rgba(0, 0, 0, .18); background: #fff; color: var(--ink);
+}
+.booking input:focus, .booking select:focus { border-color: var(--brass); }
+.booking input[aria-invalid='true'] { border-color: #b3402e; }
+.form-msg { min-height: 1.4em; margin: 0; font-weight: 600; color: var(--brass-dark); }
+.card { }
+
+/* подвал */
+.footer { background: var(--graphite); color: var(--paper); padding: 56px 0 40px; margin-top: 40px; }
+.footer-in { display: grid; grid-template-columns: auto 1fr; gap: 2rem 3rem; align-items: start; }
+.footer .logo { width: 70px; color: var(--paper); }
+.footer .logo .logo-digits { fill: var(--graphite); }
+.footer-slogan { font: 600 1.6rem var(--font-display); margin-bottom: .6rem; }
+.footer p { color: #c8c4bb; margin: 0 0 .6rem; }
+.footer-demo { grid-column: 1 / -1; font-size: .8rem; opacity: .6; border-top: 1px solid rgba(255, 255, 255, .15); padding-top: 1.2rem; }
+
+/* появление блоков при скролле */
+.reveal { opacity: 0; transform: translateY(26px); }
+
+@media (max-width: 860px) {
+  .facts, .specs { grid-template-columns: repeat(2, 1fr); }
+  .services, .tariffs, .gallery, .reviews { grid-template-columns: 1fr; }
+  .booking { grid-template-columns: 1fr; }
+  .tariff--main { transform: none; }
+  .room { aspect-ratio: 4 / 5; }
+  .seg-title { min-width: 100%; }
+  .footer-in { grid-template-columns: 1fr; }
+}

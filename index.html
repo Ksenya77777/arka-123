@@ -15,13 +15,25 @@
     <div class="loader-slogan">Встречаемся напротив Библиотеки</div>
   </div>
 
+  <!-- фон, управляемый скроллом (задание №4): небо меняется от утра к вечеру, арка «проезжает» мимо, Арчи ходит по странице -->
+  <div class="scene-bg" aria-hidden="true">
+    <div class="scene-sky" id="scene-sky"></div>
+    <svg class="scene-arch" id="scene-arch" viewBox="0 0 240 300" preserveAspectRatio="xMidYMax meet">
+      <path d="M30 300V120a90 90 0 0 1 180 0V300" fill="none" stroke="#2a2b2e" stroke-width="3"/>
+      <path d="M62 300V124a58 58 0 0 1 116 0V300" fill="none" stroke="#b8893f" stroke-width="1.5"/>
+    </svg>
+    <div class="scene-library" id="scene-library"></div>
+  </div>
+  <div class="scene-character" id="scene-character" aria-hidden="true"></div>
+
   <header class="header" id="header">
     <div class="wrap header-in">
       <a href="#top" aria-label="АРКА 123, на главную" id="header-logo"></a>
       <nav class="nav" aria-label="Основная навигация">
         <a href="#about">Об АРКА 123</a>
         <a href="#space">Помещение</a>
-        <a href="#prices">Цены</a>
+        <a href="#services">Услуги</a>
+        <a href="#prices">Тарифы</a>
         <a href="#gallery">Галерея</a>
         <a href="#reviews">Отзывы</a>
       </nav>
@@ -43,7 +55,168 @@
         </div>
         <div class="hero-arch" id="hero-logo"></div>
       </div>
+      <a class="scroll-hint" href="#about" aria-label="Прокрутить вниз">Листайте</a>
+    </section>
+
+    <section class="section" id="about">
+      <div class="wrap">
+        <div class="card about">
+          <p class="eyebrow">Об АРКА 123</p>
+          <h2>Пространство, из которого видно Библиотеку</h2>
+          <p>Название раскрывается в трёх деталях. <strong>Арка</strong>: огромные арочные окна 4×3,5&nbsp;м и арка между двумя высокими домами, через которую с променада тоже открывается вид на Библиотеку. <strong>123</strong>: именно столько квадратных метров занимает помещение. <strong>Свет и вид</strong>: то, чего нет в других залах для аренды.</p>
+          <p>Мы сдаём пространство под мастер-классы, семинары, лекции, воркшопы, дегустации и небольшие корпоративы. Всё продумано для мероприятий: чистый зал, графитовые стены, свет, проектор и зонирование под ваш формат.</p>
+          <ul class="facts">
+            <li><b>123&nbsp;м²</b><span>площадь зала</span></li>
+            <li><b>4×3,5&nbsp;м</b><span>арочные окна</span></li>
+            <li><b>до 60</b><span>гостей на мероприятии</span></li>
+            <li><b>Мстиславца, 10</b><span>центр Минска</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="space">
+      <div class="wrap">
+        <p class="eyebrow eyebrow--light">Наше помещение</p>
+        <h2>Осмотрите зал в 3D</h2>
+        <p class="lead">Вращайте зал мышью или пальцем. Переключайте сценарии, время суток и смотрите на план сверху.</p>
+
+        <div class="room" id="room-box">
+          <div class="room-canvas" id="room-canvas"></div>
+          <div class="room-hint" id="room-hint">Тяните, чтобы осмотреться · колесо — приблизить</div>
+          <noscript><p class="room-fallback">Для 3D-просмотра нужен JavaScript.</p></noscript>
+        </div>
+
+        <div class="room-controls">
+          <div class="seg" role="group" aria-label="Сценарий">
+            <span class="seg-title">Как будет выглядеть</span>
+            <button class="seg-btn is-on" data-scenario="empty" type="button">Пустой зал</button>
+            <button class="seg-btn" data-scenario="class" type="button">Мастер-класс</button>
+            <button class="seg-btn" data-scenario="table" type="button">Большой стол</button>
+            <button class="seg-btn" data-scenario="tables" type="button">Отдельные столы</button>
+          </div>
+          <div class="seg" role="group" aria-label="Время суток">
+            <span class="seg-title">Время суток</span>
+            <button class="seg-btn" data-time="morning" type="button">Утро</button>
+            <button class="seg-btn is-on" data-time="day" type="button">День</button>
+            <button class="seg-btn" data-time="evening" type="button">Вечер</button>
+          </div>
+          <div class="seg" role="group" aria-label="Вид">
+            <span class="seg-title">Вид</span>
+            <button class="seg-btn is-on" data-view="inside" type="button">Внутри</button>
+            <button class="seg-btn" data-view="plan" type="button">Сверху</button>
+          </div>
+        </div>
+
+        <ul class="specs">
+          <li><b>Стены</b>обшиты графитовым ДСП до потолка</li>
+          <li><b>Окна</b>два арочных окна 4×3,5&nbsp;м на Библиотеку</li>
+          <li><b>Свет</b>естественный и трековые светильники</li>
+          <li><b>Оборудование</b>проектор, экран, звук, мебель-трансформер</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="services">
+      <div class="wrap">
+        <p class="eyebrow">Что входит</p>
+        <h2>Наши услуги и цены</h2>
+        <div class="services">
+          <article class="svc"><h3>Проектор и экран</h3><p>Экран 4,4&nbsp;м, проектор, кабели и адаптеры.</p><b>включено</b></article>
+          <article class="svc"><h3>Звук</h3><p>Две колонки и радиомикрофон.</p><b>20 BYN</b></article>
+          <article class="svc"><h3>Расстановка мебели</h3><p>Столы и стулья под выбранный формат.</p><b>включено</b></article>
+          <article class="svc"><h3>Кофе-брейк</h3><p>Чай, кофе, вода и выпечка на каждого гостя.</p><b>от 9 BYN / гость</b></article>
+          <article class="svc"><h3>Администратор</h3><p>Встретит гостей, поможет с техникой.</p><b>30 BYN / час</b></article>
+          <article class="svc"><h3>Фотограф</h3><p>Репортажная съёмка мероприятия, 20 готовых кадров.</p><b>от 150 BYN</b></article>
+        </div>
+        <p class="note">Цены условные: сайт демонстрационный, компания вымышленная.</p>
+      </div>
+    </section>
+
+    <section class="section" id="prices">
+      <div class="wrap">
+        <p class="eyebrow">Тарифы</p>
+        <h2>Выберите формат аренды</h2>
+        <div class="tariffs">
+          <article class="tariff">
+            <h3>Час</h3>
+            <p class="price">60<span> BYN / час</span></p>
+            <ul><li>от 2 часов</li><li>проектор и экран</li><li>мебель под формат</li></ul>
+            <a class="btn" href="#booking" data-tariff="Час">Выбрать</a>
+          </article>
+          <article class="tariff tariff--main">
+            <span class="badge">Выбирают чаще</span>
+            <h3>Полдня</h3>
+            <p class="price">220<span> BYN / 4 часа</span></p>
+            <ul><li>подготовка зала в подарок</li><li>проектор, экран, звук</li><li>администратор на 1 час</li></ul>
+            <a class="btn btn--solid" href="#booking" data-tariff="Полдня">Выбрать</a>
+          </article>
+          <article class="tariff">
+            <h3>Весь день</h3>
+            <p class="price">380<span> BYN / 8 часов</span></p>
+            <ul><li>всё из тарифа «Полдня»</li><li>кофе-зона для гостей</li><li>скидка 10% на фотографа</li></ul>
+            <a class="btn" href="#booking" data-tariff="Весь день">Выбрать</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="gallery">
+      <div class="wrap">
+        <p class="eyebrow">Фотогалерея</p>
+        <h2>Планировки и виды</h2>
+        <p class="lead">Фото помещения будут добавлены заказчиком, пока галерея собрана из иллюстраций.</p>
+        <div class="gallery" id="gallery-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="reviews">
+      <div class="wrap">
+        <p class="eyebrow">Отзывы</p>
+        <h2>Что говорят организаторы</h2>
+        <div class="reviews">
+          <figure class="review"><blockquote>Окна такие, что слушатели во время перерыва не отрываются от вида. Презентация на проекторе читалась идеально.</blockquote><figcaption><b>Алина</b>, кулинарный мастер-класс</figcaption></figure>
+          <figure class="review"><blockquote>Поставили шесть столов, зал за полчаса преобразился. Администратор помог со звуком, всё прошло без накладок.</blockquote><figcaption><b>Дмитрий</b>, практикум по керамике</figcaption></figure>
+          <figure class="review"><blockquote>Клиентам сразу сказали: «встречаемся напротив Библиотеки», и никто не заблудился. Очень удобное место.</blockquote><figcaption><b>Екатерина</b>, воркшоп по брендингу</figcaption></figure>
+        </div>
+        <p class="note">Отзывы вымышленные, написаны для демонстрации макета.</p>
+      </div>
+    </section>
+
+    <section class="section" id="booking">
+      <div class="wrap">
+        <div class="card booking">
+          <div>
+            <p class="eyebrow">Бронирование</p>
+            <h2>Забронируйте дату</h2>
+            <p>Оставьте заявку, мы ответим в течение часа в рабочее время и подтвердим доступность зала.</p>
+          </div>
+          <form id="booking-form" novalidate>
+            <label>Ваше имя<input name="name" autocomplete="name" required></label>
+            <label>Телефон<input name="phone" type="tel" autocomplete="tel" placeholder="+375 ..." required></label>
+            <label>Дата<input name="date" type="date" required></label>
+            <label>Тариф
+              <select name="tariff" id="tariff-select">
+                <option>Час</option><option selected>Полдня</option><option>Весь день</option>
+              </select>
+            </label>
+            <button class="btn btn--solid" type="submit">Отправить заявку</button>
+            <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
     </section>
   </main>
+
+  <footer class="footer">
+    <div class="wrap footer-in">
+      <div id="footer-logo"></div>
+      <div>
+        <p class="footer-slogan">Встречаемся напротив Библиотеки</p>
+        <p>г. Минск, ул. Мстиславца, 10<br>Ежедневно, 9:00–22:00<br>+375 (29) 000-00-00 · hello@arka123.example</p>
+      </div>
+      <p class="footer-demo">Демонстрационный сайт для тестового задания. «АРКА 123» — вымышленная компания, цены и отзывы условные.</p>
+    </div>
+  </footer>
 </body>
 </html>
