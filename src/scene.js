@@ -11,7 +11,6 @@ gsap.registerPlugin(ScrollTrigger);
 export function initScrollScene() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sky = document.getElementById('scene-sky');
-  const arch = document.getElementById('scene-arch');
   const lib = document.getElementById('scene-library');
   const host = document.getElementById('scene-character');
 
@@ -63,16 +62,15 @@ export function initScrollScene() {
   gsap.timeline({
     scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.6 },
   })
-    .to(sky, { '--a': '#7fb2e5', '--b': '#eaf3fb', ease: 'none' })
+    .to(sky, { '--a': '#8fb6d6', '--b': '#eaf3fb', ease: 'none' })
     .to(sky, { '--a': '#d9a47a', '--b': '#f6d6a8', ease: 'none' })
-    .to(sky, { '--a': '#4f5f95', '--b': '#f2a36a', ease: 'none' });
+    .to(sky, { '--a': '#5a6f8c', '--b': '#f2a36a', ease: 'none' });
 
-  // герой: арка растёт, как будто мы проходим сквозь неё
-  gsap.timeline({
+  // герой: фото зала медленно «подъезжает» и сдвигается при прокрутке
+  gsap.fromTo('#hero-media', { yPercent: 0, scale: 1 }, {
+    yPercent: 8, scale: 1.12, ease: 'none',
     scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
-  })
-    .fromTo(arch, { scale: 1, opacity: 0 }, { scale: 3, opacity: 0.5, ease: 'none', duration: 1 })
-    .to(arch, { scale: 9, opacity: 0, ease: 'power1.in', duration: 1.4 });
+  });
   gsap.fromTo(lib, { y: 0 }, {
     y: -120, ease: 'none',
     scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: true },

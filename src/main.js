@@ -1,58 +1,83 @@
 import gsap from 'gsap';
 import './style.css';
 import { logoSVG, logoTimeline, attachHover } from './logo.js';
-import { layouts, views } from './layouts.js';
+import { layouts } from './layouts.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function mountLogos() {
-  document.getElementById('loader-logo').innerHTML = logoSVG('logo--loader');
-  document.getElementById('header-logo').innerHTML = logoSVG('logo--header');
-  document.getElementById('hero-logo').innerHTML = logoSVG('logo--hero');
-  document.getElementById('footer-logo').innerHTML = logoSVG('logo--footer');
+  document.getElementById('loader-logo').innerHTML = logoSVG({ slogan: true, cls: 'logo--loader' });
+  document.getElementById('header-logo').innerHTML = logoSVG({ cls: 'logo--header' });
+  document.getElementById('footer-logo').innerHTML = logoSVG({ slogan: true, cls: 'logo--footer' });
 }
 
-// на ховер перезапускается быстрая версия анимации; включаем после входной анимации,
+// на ховер перезапускается быстрая версия анимации; включаем после лоадера,
 // чтобы два таймлайна не боролись за одни элементы
 function enableHover() {
   if (reduceMotion) return;
-  document.querySelectorAll('#header-logo .logo, #hero-logo .logo, #footer-logo .logo').forEach(attachHover);
+  document.querySelectorAll('#header-logo .logo, #footer-logo .logo').forEach(attachHover);
 }
 
 function runLoader() {
   const loader = document.getElementById('loader');
-  const svg = loader.querySelector('.logo');
-  const slogan = loader.querySelector('.loader-slogan');
-  // стартовое состояние героя (скрыт) задаётся заранее, чтобы он не мигал под лоадером
-  const heroTl = logoTimeline(document.querySelector('#hero-logo .logo'));
-  const finish = () => {
-    loader.classList.add('is-done');
-    gsap.to(loader, {
-      clipPath: 'inset(0 0 100% 0)', duration: 0.9, ease: 'power3.inOut',
-      onComplete: () => loader.remove(),
-    });
-    heroTl.eventCallback('onComplete', enableHover);
-    heroTl.play(0);
-  };
+  const logo = loader.querySelector('.logo');
   if (reduceMotion) {
-    heroTl.progress(1);
     loader.remove();
     return;
   }
-  const tl = logoTimeline(svg);
-  tl.to(slogan, { opacity: 1, duration: 0.6 }, '-=0.5').to({}, { duration: 0.5 });
-  tl.eventCallback('onComplete', finish);
+  const tl = logoTimeline(logo);
+  tl.to({}, { duration: 0.6 });
+  tl.eventCallback('onComplete', () => {
+    loader.classList.add('is-done');
+    gsap.to(loader, {
+      clipPath: 'inset(0 0 100% 0)', duration: 0.9, ease: 'power3.inOut',
+      onComplete: () => { loader.remove(); enableHover(); },
+    });
+  });
   tl.play(0);
 }
 
+// Фото из материалов задания (обработанные), подписи и размеры карточек
+const PHOTOS = [
+  { id: 'p06', title: 'Зал: арочные окна и паркет «ёлочка»', cls: 'shot--wide' },
+  { id: 'p07', title: 'Из окна видна Национальная библиотека', cls: 'shot--tall' },
+  { id: 'p04', title: 'Зал со стороны входа' },
+  { id: 'p05', title: 'Арочные окна 4×3,5 м' },
+  { id: 'p02', title: 'Потолки до 4,5 метров', cls: 'shot--wide' },
+  { id: 'p11', title: 'Ресепшен-стойка', cls: 'shot--tall' },
+  { id: 'p08', title: 'Вид на променад' },
+  { id: 'p09', title: 'Окно на парковую зону' },
+  { id: 'p12', title: 'Стеклянные перегородки', cls: 'shot--wide' },
+  { id: 'p03', title: 'Из чего сделан ремонт' },
+  { id: 'p16', title: 'Фасад: арочные окна дома', cls: 'shot--wide' },
+  { id: 'p18', title: 'Вход со стороны променада' },
+];
+
 function mountGallery() {
-  const items = [
-    ...Object.values(layouts).map((l) => ({ title: l.title, note: l.note, svg: l.svg() })),
-    { title: 'Вид на Библиотеку', note: 'Арочное окно, 4×3,5 м', svg: views.library() },
-    { title: 'Арка', note: 'Фирменная форма здания и логотипа', svg: views.arch() },
-  ];
-  document.getElementById('gallery-grid').innerHTML = items.map((i) => `
-    <figure class="shot">${i.svg}<figcaption><b>${i.title}</b><span>${i.note}</span></figcaption></figure>`).join('');
+  const grid = document.getElementById('gallery-grid');
+  grid.innerHTML = PHOTOS.map((p) => `
+    <button class="shot ${p.cls ?? ''}" type="button" data-src="./photos/${p.id}.webp" data-cap="${p.title}">
+      <img src="./photos/${p.id}.webp" alt="${p.title}" loading="lazy">
+      <figcaption>${p.title}</figcaption>
+    </button>`).join('');
+
+  const box = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  const cap = document.getElementById('lightbox-cap');
+  grid.addEventListener('click', (e) => {
+    const b = e.target.closest('.shot');
+    if (!b) return;
+    img.src = b.dataset.src;
+    img.alt = b.dataset.cap;
+    cap.textContent = b.dataset.cap;
+    box.showModal();
+  });
+  document.getElementById('lightbox-close').addEventListener('click', () => box.close());
+  box.addEventListener('click', (e) => { if (e.target === box) box.close(); });
+
+  // планировки (иллюстрации сценариев расстановки)
+  document.getElementById('plans-grid').innerHTML = Object.values(layouts).map((l) => `
+    <figure class="plan">${l.svg()}<figcaption><b>${l.title}</b><span>${l.note}</span></figcaption></figure>`).join('');
 }
 
 function initBooking() {
