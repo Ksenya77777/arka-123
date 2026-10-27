@@ -18,18 +18,18 @@ npm run preview  # просмотр собранной версии
 
 | Часть ТЗ | Где | Описание |
 |----------|-----|----------|
-| 1. Анимация логотипа | `src/logo.js`, `docs/logo-animation.md` | SVG + GSAP. Лоадер и анимация на ховере |
+| 1. Анимация логотипа | `src/logo.js`, `src/brand-paths.js`, `docs/logo-animation.md` | Логотип заказчика, векторизованный в SVG, + GSAP. Лоадер и анимация на ховере |
 | 2. Фирменный персонаж | `src/character.js`, `docs/character.md` | Арчи, арка с лицом-окном, SVG |
-| 3. Помещение в 3D | `src/room3d.js` | Three.js: сценарии, время суток, вид сверху |
+| 3. Помещение в 3D | `src/room3d.js` | Three.js: сценарии, время суток, вид сверху; материалы по фото зала |
 | 4. Герой бренда | `src/scene.js` | Фон на скролле: небо, арка, Арчи (GSAP ScrollTrigger) |
-| 5. Готовый сайт | `index.html`, `src/style.css`, `src/main.js` | Лоадер, шапка, 8 блоков, подвал, адаптив |
+| 5. Готовый сайт | `index.html`, `src/style.css`, `src/main.js` | Лоадер, шапка, 8 блоков, реальные фото, лайтбокс, подвал, адаптив |
 
 Отчёт с указанием времени, нейросетей и ограничений: [REPORT.md](REPORT.md).
 План работ: [PLAN.md](PLAN.md).
 
 ## Технологии
 
-Vite, ванильные JS/HTML/CSS, GSAP (+ ScrollTrigger), Three.js. Без UI-фреймворков.
+Vite, ванильные JS/HTML/CSS, GSAP (+ ScrollTrigger), Three.js. Без UI-фреймворков. Шрифт Manrope. Фото из материалов задания оптимизированы в WebP (`public/photos`).
 
 ## Публикация
 
