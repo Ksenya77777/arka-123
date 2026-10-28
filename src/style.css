@@ -277,7 +277,8 @@ main, footer { position: relative; z-index: 1; }
   .facts { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-  .scene-character { width: 112px; }
+  .scene-character { width: 104px; }
+  .ch-bubble { right: 58%; bottom: 62%; max-width: 170px; padding: .5em .75em; font-size: .74rem; border-radius: 12px 12px 2px 12px; opacity: .96; }
   .gallery { grid-template-columns: 1fr 1fr; }
   .shot--wide { grid-column: span 2; }
   .strip { grid-template-columns: 1fr 1fr; }
