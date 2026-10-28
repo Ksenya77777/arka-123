@@ -1,0 +1,119 @@
+// Герой-«видео», которое перематывается скроллом (приём из урока про интерактивный экран).
+// Кадры лежат в public/seq/h (16:9) и public/seq/v (9:16). Страница прокручивается, кадр выбирается
+// по прогрессу скролла внутри высокой секции .hero, canvas рисует нужный кадр.
+const FRAMES = 120;
+const START_UI = 0.06;   // до этого прогресса интерфейс героя виден
+const FINALE = 0.93;     // после этого появляется финальный блок
+const STEPS = [0, 0.08, 0.38, 0.66, FINALE]; // шаги экскурсии Арчи
+
+export function initHeroScrub() {
+  const hero = document.getElementById('hero');
+  const cv = document.getElementById('cv');
+  if (!hero || !cv) return;
+  const ctx = cv.getContext('2d', { alpha: false });
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const kind = window.innerWidth / window.innerHeight < 1 ? 'v' : 'h';
+  const src = (i) => `./seq/${kind}/${String(i).padStart(4, '0')}.webp`;
+
+  const imgs = new Array(FRAMES + 1);
+  const loaded = new Array(FRAMES + 1).fill(false);
+  let vw = 0; let vh = 0; let dpr = 1;
+  let current = 0; let target = 0; let lastDrawn = -1; let lastP = -1;
+
+  const resize = () => {
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    vw = cv.clientWidth; vh = cv.clientHeight;
+    cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr);
+    lastDrawn = -1;
+    draw(current);
+  };
+
+  // ближайший уже загруженный кадр (пока догружаются остальные)
+  const nearest = (i) => {
+    for (let d = 0; d < FRAMES; d++) {
+      if (loaded[i - d] && i - d >= 1) return i - d;
+      if (loaded[i + d] && i + d <= FRAMES) return i + d;
+    }
+    return 0;
+  };
+
+  const cover = (img, alpha) => {
+    const iw = img.naturalWidth; const ih = img.naturalHeight;
+    const s = Math.max(cv.width / iw, cv.height / ih);
+    const w = iw * s; const h = ih * s;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
+    ctx.globalAlpha = 1;
+  };
+
+  // f — дробный номер кадра (0..FRAMES-1); соседние кадры смешиваем для плавности
+  function draw(f) {
+    const a = nearest(Math.min(FRAMES, Math.floor(f) + 1));
+    if (!a) return;
+    cover(imgs[a], 1);
+    const frac = f - Math.floor(f);
+    const b = Math.min(FRAMES, Math.floor(f) + 2);
+    if (frac > 0.04 && loaded[b]) cover(imgs[b], frac);
+  }
+
+  // загрузка: сначала кадр 1, затем каждый 8-й, 4-й, 2-й и остальные, 8 параллельных потоков
+  const load = (i) => new Promise((resolve) => {
+    const im = new Image();
+    im.decoding = 'async';
+    im.onload = () => {
+      (im.decode ? im.decode().catch(() => {}) : Promise.resolve()).then(() => {
+        imgs[i] = im; loaded[i] = true; resolve();
+      });
+    };
+    im.onerror = resolve;
+    im.src = src(i);
+  });
+  const order = [];
+  const seen = new Set([1]);
+  for (const step of [8, 4, 2, 1]) {
+    for (let i = 1; i <= FRAMES; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); }
+  }
+  load(1).then(() => { resize(); });
+  let next = 0;
+  const worker = async () => { while (next < order.length) await load(order[next++]); };
+  for (let k = 0; k < 8; k++) worker();
+
+  if (reduce) {
+    // без анимации показываем один выразительный кадр (зал с арочными окнами)
+    hero.classList.add('is-static');
+    load(48).then(() => { current = 47; draw(47); });
+    window.addEventListener('resize', resize);
+    return;
+  }
+
+  let phase = ''; let step = -1;
+  const setPhase = (p) => {
+    const ph = p <= START_UI ? 'start' : p >= FINALE ? 'finale' : 'flight';
+    if (ph !== phase) { phase = ph; hero.dataset.phase = ph; }
+    let s = 0;
+    for (let k = 0; k < STEPS.length; k++) if (p >= STEPS[k]) s = k;
+    if (s !== step) {
+      step = s;
+      window.dispatchEvent(new CustomEvent('hero:step', { detail: { step: s, phase: ph } }));
+    }
+  };
+
+  const tick = () => {
+    const r = hero.getBoundingClientRect();
+    const range = r.height - window.innerHeight;
+    const p = Math.min(1, Math.max(0, -r.top / range));
+    target = p * (FRAMES - 1);
+    current += (target - current) * 0.22;     // небольшая инерция, без дрожи
+    if (Math.abs(target - current) < 0.01) current = target;
+    const idx = Math.round(current * 20) / 20;
+    if (idx !== lastDrawn || Math.abs(p - lastP) > 0.002) {
+      draw(current); lastDrawn = idx; lastP = p;
+    }
+    setPhase(p);
+    requestAnimationFrame(tick);
+  };
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(tick);
+}
