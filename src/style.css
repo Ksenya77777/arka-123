@@ -94,10 +94,11 @@ p { margin: 0 0 1em; }
 .scene-library { position: absolute; right: 7%; bottom: 20%; width: clamp(110px, 15vw, 210px); opacity: .5; }
 .scene-library svg { width: 100%; height: auto; }
 .scene-character {
-  position: fixed; z-index: 30; right: 2vw; bottom: 3.6rem; width: clamp(78px, 13vw, 190px);
+  position: fixed; z-index: 30; right: 1vw; bottom: 0; width: clamp(104px, 17vw, 250px);
   pointer-events: none; opacity: 0; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .22));
 }
-.scene-character svg { width: 100%; height: auto; overflow: visible; }
+.host { position: relative; width: 100%; aspect-ratio: 560 / 750; }
+.host-pose { position: absolute; inset: 0; width: 100%; height: 100%; }
 main, footer { position: relative; z-index: 1; }
 
 /* ---------- герой: видео-кадры, перематываемые скроллом ---------- */
@@ -262,7 +263,7 @@ main, footer { position: relative; z-index: 1; }
   .facts { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-  .scene-character { width: 78px; }
+  .scene-character { width: 112px; }
   .gallery { grid-template-columns: 1fr 1fr; }
   .shot--wide { grid-column: span 2; }
   .strip { grid-template-columns: 1fr 1fr; }
