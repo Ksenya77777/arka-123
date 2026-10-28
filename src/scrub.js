@@ -1,7 +1,7 @@
 // Герой-«видео», которое перематывается скроллом (приём из урока про интерактивный экран).
-// Кадры лежат в public/seq/h (16:9) и public/seq/v (9:16). Страница прокручивается, кадр выбирается
+// Кадры лежат в public/seq/h (нарезка видео, 16:9). Страница прокручивается, кадр выбирается
 // по прогрессу скролла внутри высокой секции .hero, canvas рисует нужный кадр.
-const FRAMES = 120;
+const FRAMES = 121;
 const START_UI = 0.06;   // до этого прогресса интерфейс героя виден
 const FINALE = 0.93;     // после этого появляется финальный блок
 const STEPS = [0, 0.08, 0.38, 0.66, FINALE]; // шаги экскурсии Арчи
@@ -12,8 +12,8 @@ export function initHeroScrub() {
   if (!hero || !cv) return;
   const ctx = cv.getContext('2d', { alpha: false });
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const kind = window.innerWidth / window.innerHeight < 1 ? 'v' : 'h';
-  const src = (i) => `./seq/${kind}/${String(i).padStart(4, '0')}.webp`;
+  // одна последовательность для всех экранов: на телефоне canvas обрезает кадр по центру
+  const src = (i) => `./seq/h/${String(i).padStart(4, '0')}.webp`;
 
   const imgs = new Array(FRAMES + 1);
   const loaded = new Array(FRAMES + 1).fill(false);
@@ -81,7 +81,7 @@ export function initHeroScrub() {
   if (reduce) {
     // без анимации показываем один выразительный кадр (зал с арочными окнами)
     hero.classList.add('is-static');
-    load(48).then(() => { current = 47; draw(47); });
+    load(75).then(() => { current = 74; draw(74); });
     window.addEventListener('resize', resize);
     return;
   }
