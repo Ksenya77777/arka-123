@@ -4,9 +4,10 @@ import sys
 from PIL import Image, ImageFilter
 
 SRC = sys.argv[1]
-POSES = {'idle': 'host-01-seated', 'wave': 'host-02-wave', 'point': 'host-03-point', 'rest': 'host-04-arms'}
+POSES = ['idle', 'wave', 'point', 'rest']  # имена PNG в папке = имена поз
 W = 560
-for pose, name in POSES.items():
+for pose in POSES:
+    name = pose
     im = Image.open(f'{SRC}/{name}.png').convert('RGBA')
     r, g, b, a = im.split()
     a = a.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))  # убираем светлую кайму

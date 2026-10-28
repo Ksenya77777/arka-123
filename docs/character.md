@@ -5,22 +5,23 @@
 
 ## Образ
 
-- Женщина около 32 лет, русые волосы в аккуратном низком пучке, спокойный и уверенный взгляд.
+- Женщина около 32 лет, тёмные (брюнетка) прямые распущенные волосы, голубо-синие глаза, мягкая розовая помада, спокойный и уверенный взгляд.
 - Тёмно-синий жакет (цвет бренда `--navy`) поверх светлой блузки: строго, но тепло.
 - **Брошь:** деревянная арка с цифрами «123» цвета паркета (`--oak`), прямая отсылка к логотипу.
 - Характер: гостеприимная хозяйка, которая встречает гостя и показывает пространство.
 
 ## Как создан
 
-1. Портрет и три позы (машет рукой, показывает вправо, скрещённые руки) сгенерированы в **Gemini** (бесплатный тариф): один промпт на портрет и три запроса «та же женщина, но …» с портретом в качестве референса. Лицо во всех позах узнаваемо одно.
+1. Портрет (стоя) и три позы (машет рукой, показывает вправо, скрещённые руки) сгенерированы в **Gemini** (бесплатный тариф): один промпт на портрет и три запроса «та же женщина, но …» с портретом в качестве референса. Лицо во всех позах узнаваемо одно.
 2. Фон вырезан библиотекой rembg (модель `u2net_human_seg`), скрипт `tools/prep_host.py` убирает светлую кайму и сохраняет WebP с прозрачностью (`public/host/*.webp`, ~140 КБ на четыре позы).
-3. Исходные файлы лежат вне репозитория: `arka-materials/character/`.
+3. Исходные файлы лежат вне репозитория: `arka-materials/character/v2/`.
 
 Промпт портрета:
 ```
-Portrait of a Slavic woman, 32 years old, calm confident expression, light brown hair in a neat low bun,
-wearing a tailored navy blazer over an ivory blouse, a small oak-colored arch-shaped brooch with the numbers "123"
-pinned on the lapel, plain light beige studio background, soft daylight, photorealistic, half-body, 3:4
+Portrait of a Slavic woman, 32 years old, calm confident expression, dark brunette hair worn loose and straight past the
+shoulders, deep blue eyes with a slight blue-grey tint, natural makeup with soft rose-red lipstick, wearing a tailored navy
+blazer over an ivory blouse, a small oak-colored arch-shaped brooch with the numbers "123" pinned on the lapel, plain light
+warm beige studio background, soft daylight, photorealistic, half-body, standing, 3:4
 ```
 
 ## Роль на сайте (`src/host.js`, `src/scene.js`)
