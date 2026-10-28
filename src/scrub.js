@@ -5,6 +5,19 @@ const FRAMES = 121;
 const START_UI = 0.06;   // до этого прогресса интерфейс героя виден
 const FINALE = 0.93;     // после этого появляется финальный блок
 const STEPS = [0, 0.08, 0.38, 0.66, FINALE]; // шаги экскурсии Арчи
+// «Умная» обрезка для узких экранов (телефон): какую часть кадра по горизонтали держать в центре.
+// Пары [номер кадра, доля ширины]: фасад справа, дверь слева, затем зал и окно с Библиотекой.
+const FOCUS = [[1, 0.66], [20, 0.72], [40, 0.65], [52, 0.45], [60, 0.5], [75, 0.58], [100, 0.65], [121, 0.68]];
+const focusAt = (n) => {
+  if (n <= FOCUS[0][0]) return FOCUS[0][1];
+  for (let i = 1; i < FOCUS.length; i++) {
+    if (n <= FOCUS[i][0]) {
+      const [a, fa] = FOCUS[i - 1]; const [b, fb] = FOCUS[i];
+      return fa + (fb - fa) * ((n - a) / (b - a));
+    }
+  }
+  return FOCUS[FOCUS.length - 1][1];
+};
 
 export function initHeroScrub() {
   const hero = document.getElementById('hero');
@@ -37,12 +50,14 @@ export function initHeroScrub() {
     return 0;
   };
 
-  const cover = (img, alpha) => {
+  // fx — доля ширины кадра, которая должна оказаться по центру экрана (на широком экране ничего не меняет)
+  const cover = (img, alpha, fx) => {
     const iw = img.naturalWidth; const ih = img.naturalHeight;
     const s = Math.max(cv.width / iw, cv.height / ih);
     const w = iw * s; const h = ih * s;
+    const x = Math.min(0, Math.max(cv.width - w, cv.width / 2 - fx * w));
     ctx.globalAlpha = alpha;
-    ctx.drawImage(img, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
+    ctx.drawImage(img, x, (cv.height - h) / 2, w, h);
     ctx.globalAlpha = 1;
   };
 
@@ -50,10 +65,11 @@ export function initHeroScrub() {
   function draw(f) {
     const a = nearest(Math.min(FRAMES, Math.floor(f) + 1));
     if (!a) return;
-    cover(imgs[a], 1);
+    const fx = focusAt(f + 1);
+    cover(imgs[a], 1, fx);
     const frac = f - Math.floor(f);
     const b = Math.min(FRAMES, Math.floor(f) + 2);
-    if (frac > 0.04 && loaded[b]) cover(imgs[b], frac);
+    if (frac > 0.04 && loaded[b]) cover(imgs[b], frac, fx);
   }
 
   // загрузка: сначала кадр 1, затем каждый 8-й, 4-й, 2-й и остальные, 8 параллельных потоков
