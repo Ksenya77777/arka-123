@@ -6,6 +6,7 @@
 import os, sys, cv2
 from PIL import Image
 
+CROP_BOTTOM = 0.11  # водяной знак Dreamina стоит в нижних ~10% кадра: срезаем их
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 out = os.path.join(ROOT, 'public', 'seq', 'h')
 os.makedirs(out, exist_ok=True)
@@ -19,6 +20,7 @@ while True:
     if not ok:
         break
     i += 1
+    fr = fr[: int(fr.shape[0] * (1 - CROP_BOTTOM))]
     im = Image.fromarray(cv2.cvtColor(fr, cv2.COLOR_BGR2RGB))
     im.thumbnail((1280, 1280))
     p = os.path.join(out, f'{i:04d}.webp')
