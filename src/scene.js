@@ -55,6 +55,22 @@ export function initScrollScene() {
     onEnter: () => { hero.pose(t.pose); say(t.say); },
     onEnterBack: () => { hero.pose(t.pose); say(t.say); },
   }));
+  // экскурсия в герое: реплики по шагам пролёта камеры
+  const heroLines = [
+    { pose: 'wave',  say: 'Здравствуйте! Я Арчи. Прокрутите вниз, и я проведу вас по залу.' },
+    { pose: 'point', say: 'Вот наш дом с арочными окнами. Заходим!' },
+    { pose: 'point', say: 'Паркет «ёлочка», потолки до 4,5 метров, 33 светильника.' },
+    { pose: 'point', say: 'А теперь посмотрите вверх и к окнам.' },
+    { pose: 'wave',  say: '' }, // в финале говорит сам экран
+  ];
+  window.addEventListener('hero:step', (e) => {
+    const l = heroLines[e.detail.step];
+    if (!l) return;
+    hero.pose(l.pose);
+    if (l.say) say(l.say);
+    else { clearTimeout(sayTimer); gsap.to(bubble, { opacity: 0, duration: 0.3 }); }
+  });
+
   // шаги: ноги двигаются, пока страница прокручивается
   ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => hero.step(self.scroll()) });
 
@@ -66,18 +82,15 @@ export function initScrollScene() {
     .to(sky, { '--a': '#d9a47a', '--b': '#f6d6a8', ease: 'none' })
     .to(sky, { '--a': '#5a6f8c', '--b': '#f2a36a', ease: 'none' });
 
-  // герой: фото зала медленно «подъезжает» и сдвигается при прокрутке
-  gsap.fromTo('#hero-media', { yPercent: 0, scale: 1 }, {
-    yPercent: 8, scale: 1.12, ease: 'none',
-    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
-  });
   gsap.fromTo(lib, { y: 0 }, {
     y: -120, ease: 'none',
     scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: true },
   });
 
   // Арчи: появляется после героя и меняет позицию в каждом блоке
-  gsap.set(host, { opacity: 0, x: 140 });
+  gsap.set(host, { opacity: 0 });
+  // Арчи появляется сразу после лоадера и ведёт гостя с первого экрана
+  gsap.to(host, { opacity: 1, duration: 0.8, delay: 4 });
   const stops = [
     { id: '#about',    x: 0,    y: 0,    rotate: 0,  scale: 1 },
     { id: '#space',    x: -20,  y: -30,  rotate: -5, scale: 1.1 },
@@ -90,7 +103,6 @@ export function initScrollScene() {
   const tl = gsap.timeline({
     scrollTrigger: { trigger: '#about', endTrigger: '#booking', start: 'top 80%', end: 'bottom bottom', scrub: 0.8 },
   });
-  tl.fromTo(host, { opacity: 0, x: 140 }, { opacity: 1, x: 0, duration: 0.6 });
   stops.forEach((s, i) => {
     tl.to(host, { x: s.x, y: s.y, rotation: s.rotate, scale: s.scale, duration: 1, ease: 'sine.inOut' }, i === 0 ? '>' : '>');
   });

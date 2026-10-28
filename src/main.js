@@ -155,6 +155,7 @@ onScroll();
 
 // Тяжёлые модули (Three.js, ScrollTrigger) грузятся отдельным чанком после лоадера
 import('./scene.js').then((m) => m.initScrollScene());
+import('./scrub.js').then((m) => m.initHeroScrub());
 
 const roomBox = document.getElementById('room-canvas');
 

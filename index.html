@@ -41,26 +41,30 @@
   </header>
 
   <main id="top">
-    <section class="hero">
-      <div class="hero-media" id="hero-media">
-        <img src="./photos/p06.webp" alt="Зал АРКА 123: арочные окна, паркет «ёлочка» и потолок цвета антрацит" fetchpriority="high" width="1600" height="900">
-      </div>
-      <div class="hero-shade"></div>
-      <div class="wrap hero-grid">
-        <div class="hero-text">
-          <p class="eyebrow eyebrow--light">Пространство для мастер-классов и семинаров</p>
-          <h1>Встречаемся напротив&nbsp;Библиотеки</h1>
-          <p class="hero-lead">Светлый зал 123&nbsp;м² с арочными окнами 4×3,5&nbsp;м, из которых видно Национальную библиотеку.</p>
-          <div class="hero-actions">
-            <a class="btn btn--accent" href="#booking">Забронировать дату</a>
-            <a class="btn btn--light" href="#space">Смотреть зал в 3D</a>
+    <section class="hero" id="hero" data-phase="start" aria-label="Пролёт камеры по залу АРКА 123: прокручивайте страницу">
+      <div class="sticky">
+        <canvas id="cv" role="img" aria-label="Зал АРКА 123: арочные окна, паркет «ёлочка» и вид на Национальную библиотеку"></canvas>
+        <div class="vignette"></div>
+        <div class="wrap hero-grid ui">
+          <div class="hero-text">
+            <p class="eyebrow eyebrow--light">Пространство для мастер-классов и семинаров</p>
+            <h1>Встречаемся напротив&nbsp;Библиотеки</h1>
+            <p class="hero-lead">Светлый зал 123&nbsp;м² с арочными окнами 4×3,5&nbsp;м, из которых видно Национальную библиотеку.</p>
+            <div class="hero-actions">
+              <a class="btn btn--accent" href="#booking">Забронировать дату</a>
+              <a class="btn btn--light" href="#space">Смотреть зал в 3D</a>
+            </div>
+            <ul class="chips">
+              <li>123 м²</li><li>потолки до 4,5 м</li><li>33 светильника</li><li>ул. Мстиславца, 10</li>
+            </ul>
           </div>
-          <ul class="chips">
-            <li>123 м²</li><li>потолки до 4,5 м</li><li>33 светильника</li><li>ул. Мстиславца, 10</li>
-          </ul>
+        </div>
+        <a class="scroll-hint ui" href="#about" aria-label="Прокрутить вниз">Листайте</a>
+        <div class="finale">
+          <p>Вот он, вид из окон. Встречаемся напротив Библиотеки.</p>
+          <a class="btn btn--accent" href="#booking">Забронировать дату</a>
         </div>
       </div>
-      <a class="scroll-hint" href="#about" aria-label="Прокрутить вниз">Листайте</a>
     </section>
 
     <section class="section" id="about">
