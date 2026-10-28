@@ -1,13 +1,13 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { characterSVG, animateCharacter } from './character.js';
+import { hostHTML, animateHost } from './host.js';
 import { views } from './layouts.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // Задание №4: «герой бренда» не отдельное видео, а анимация, встроенная в сайт.
 // Фон управляется скроллом: небо идёт от утра к вечеру, арка «проезжает» мимо
-// камеры, Арчи перемещается по странице и реагирует на блоки.
+// камеры, хозяйка перемещается по странице и реагирует на блоки.
 export function initScrollScene() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sky = document.getElementById('scene-sky');
@@ -19,8 +19,8 @@ export function initScrollScene() {
     <polygon points="-60,0 -38,-40 38,-40 60,0 38,40 -38,40" fill="#d9e4ee" stroke="#7d93a8" stroke-width="2"/>
     <polygon points="-38,-40 0,-62 38,-40" fill="#eef4f9" stroke="#7d93a8" stroke-width="2"/>
     <path d="M-38 -40V40M38 -40V40M-60 0H60" stroke="#7d93a8" stroke-width="1.6"/></svg>`;
-  host.innerHTML = `<p class="ch-bubble" id="ch-bubble"></p>${characterSVG()}`;
-  const ch = host.querySelector('svg');
+  host.innerHTML = `<p class="ch-bubble" id="ch-bubble"></p>${hostHTML()}`;
+  const ch = host.querySelector('.host');
   const bubble = document.getElementById('ch-bubble');
 
   if (reduce) {
@@ -28,11 +28,11 @@ export function initScrollScene() {
     gsap.set(host, { opacity: 1 });
     return;
   }
-  const hero = animateCharacter(ch);
+  const hero = animateHost(ch);
 
-  // Арчи ведёт экскурсию: в каждом блоке у него своя реплика и поза
+  // Хозяйка ведёт экскурсию: в каждом блоке у него своя реплика и поза
   const tour = [
-    { id: '#about',    pose: 'wave',  say: 'Здравствуйте! Я Арчи, хозяин АРКА 123. Давайте покажу зал.' },
+    { id: '#about',    pose: 'wave',  say: 'Здравствуйте! Я хозяйка АРКА 123. Давайте покажу зал.' },
     { id: '#space',    pose: 'point', say: 'Вот наш зал. Покрутите его сами и расставьте мебель под свой формат.' },
     { id: '#services', pose: 'point', say: 'Проектор, звук, кофе-брейк: всё для вашего мероприятия.' },
     { id: '#prices',   pose: 'point', say: 'Чаще всего берут «Полдня»: четыре часа и ничего лишнего.' },
@@ -57,7 +57,7 @@ export function initScrollScene() {
   }));
   // экскурсия в герое: реплики по шагам пролёта камеры
   const heroLines = [
-    { pose: 'wave',  say: 'Здравствуйте! Я Арчи. Прокрутите вниз, и я проведу вас по залу.' },
+    { pose: 'wave',  say: 'Здравствуйте! Я хозяйка АРКА 123. Прокрутите вниз, и я проведу вас по залу.' },
     { pose: 'point', say: 'Вот наш дом с арочными окнами. Сейчас зайдём внутрь.' },
     { pose: 'point', say: 'Паркет «ёлочка», потолки до 4,5 метров, 33 светильника.' },
     { pose: 'point', say: 'Идём к окну: оттуда видна Библиотека.' },
@@ -87,18 +87,18 @@ export function initScrollScene() {
     scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: true },
   });
 
-  // Арчи: появляется после героя и меняет позицию в каждом блоке
-  gsap.set(host, { opacity: 0 });
-  // Арчи появляется сразу после лоадера и ведёт гостя с первого экрана
+  // Хозяйка: появляется после героя и меняет позицию в каждом блоке
+  gsap.set(host, { opacity: 0, transformOrigin: '50% 100%' });
+  // Хозяйка появляется сразу после лоадера и ведёт гостя с первого экрана
   gsap.to(host, { opacity: 1, duration: 0.8, delay: 4 });
   const stops = [
     { id: '#about',    x: 0,    y: 0,    rotate: 0,  scale: 1 },
-    { id: '#space',    x: -20,  y: -30,  rotate: -5, scale: 1.1 },
-    { id: '#services', x: 0,    y: 0,    rotate: 3,  scale: 0.95 },
-    { id: '#prices',   x: -10,  y: -20,  rotate: -3, scale: 1 },
-    { id: '#gallery',  x: 0,    y: 0,    rotate: 4,  scale: 0.95 },
-    { id: '#reviews',  x: -16,  y: -10,  rotate: -4, scale: 1 },
-    { id: '#booking',  x: 0,    y: -20,  rotate: 0,  scale: 1.12 },
+    { id: '#space',    x: -20,  y: 0,  rotate: 0, scale: 1.1 },
+    { id: '#services', x: 0,    y: 0,    rotate: 0,  scale: 0.95 },
+    { id: '#prices',   x: -10,  y: 0,  rotate: 0, scale: 1 },
+    { id: '#gallery',  x: 0,    y: 0,    rotate: 0,  scale: 0.95 },
+    { id: '#reviews',  x: -16,  y: 0,  rotate: 0, scale: 1 },
+    { id: '#booking',  x: 0,    y: 0,  rotate: 0,  scale: 1.12 },
   ];
   const tl = gsap.timeline({
     scrollTrigger: { trigger: '#about', endTrigger: '#booking', start: 'top 80%', end: 'bottom bottom', scrub: 0.8 },
