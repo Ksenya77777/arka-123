@@ -189,7 +189,7 @@ main, footer { position: relative; z-index: 1; }
 .badge { position: absolute; top: -13px; left: 1.8rem; background: var(--oak); color: #1a1208; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: .3em .9em; border-radius: 999px; }
 
 /* галерея */
-.gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin-top: 1.6rem; }
+.gallery { display: grid; grid-auto-flow: dense; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin-top: 1.6rem; }
 .shot { margin: 0; position: relative; border-radius: 14px; overflow: hidden; background: var(--sand); cursor: zoom-in; aspect-ratio: 4 / 3; border: 0; padding: 0; font: inherit; color: inherit; text-align: left; }
 .shot--tall { grid-row: span 2; aspect-ratio: auto; }
 .shot--wide { grid-column: span 2; }
