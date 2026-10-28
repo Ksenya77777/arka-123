@@ -51,9 +51,31 @@ const PHOTOS = [
   { id: 'p03', title: 'Из чего сделан ремонт' },
   { id: 'p16', title: 'Фасад: арочные окна дома', cls: 'shot--wide' },
   { id: 'p18', title: 'Вход со стороны променада' },
-  { id: 'r01', title: 'Обработка исходника: столбы и стены обшиты графитом до потолка (нейросеть)', cls: 'shot--wide' },
-  { id: 'r03', title: 'Обработка исходника: убраны следы ремонта на стене и столбе (нейросеть)', cls: 'shot--banner' },
 ];
+
+// «до и после»: ретушь исходных фото (достроена обшивка графитом), ползунок открывает оригинал
+const BA = [
+  { before: 'b03', after: 'r03', title: 'Стена из блоков и столб: обшиты графитом до потолка' },
+  { before: 'b01', after: 'r01', title: 'Бетонные столбы и светлая стена: обшиты графитом' },
+];
+
+function mountBeforeAfter() {
+  const host = document.getElementById('ba-grid');
+  if (!host) return;
+  host.innerHTML = BA.map((b, i) => `
+    <figure class="ba" style="--pos:50%">
+      <img class="ba-img" src="./photos/${b.after}.webp" alt="После обработки: ${b.title}" loading="lazy">
+      <img class="ba-img ba-before" src="./photos/${b.before}.webp" alt="До обработки" loading="lazy">
+      <span class="ba-tag ba-tag--l">До</span><span class="ba-tag ba-tag--r">После</span>
+      <span class="ba-line" aria-hidden="true"></span>
+      <input class="ba-range" type="range" min="0" max="100" value="50" aria-label="Сравнить до и после: ${b.title}" data-i="${i}">
+      <figcaption>${b.title}</figcaption>
+    </figure>`).join('');
+  host.addEventListener('input', (e) => {
+    const r = e.target.closest('.ba-range');
+    if (r) r.closest('.ba').style.setProperty('--pos', `${r.value}%`);
+  });
+}
 
 function mountGallery() {
   const grid = document.getElementById('gallery-grid');
@@ -147,6 +169,7 @@ function initMenu() {
 mountLogos();
 runLoader();
 mountGallery();
+mountBeforeAfter();
 initBooking();
 initMenu();
 
