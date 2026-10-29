@@ -216,7 +216,16 @@ function startRoom() {
     bind('time', room.setTime);
     bind('view', room.setView);
     roomBox.addEventListener('pointerdown', () => hint?.classList.add('is-hidden'), { once: true });
-  }).catch(() => roomFallback('Не удалось загрузить 3D-модель. Проверьте соединение и обновите страницу.'));
+  }, () => {
+    // чанк не загрузился (обрыв связи или страница из кэша старой версии): предлагаем перезагрузить
+    roomFallback('Не удалось загрузить 3D-модель. Проверьте соединение и попробуйте ещё раз.');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn--accent';
+    btn.textContent = 'Обновить страницу';
+    btn.addEventListener('click', () => location.reload());
+    roomBox.querySelector('.room-fallback')?.append(document.createElement('br'), btn);
+  });
 }
 
 // 3D-чанк (около 600 КБ) грузим только когда блок почти показался на экране
