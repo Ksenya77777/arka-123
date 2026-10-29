@@ -184,21 +184,25 @@ import('./scrub.js').then((m) => m.initHeroScrub());
 
 const roomBox = document.getElementById('room-canvas');
 
-function roomFallback(text) {
-  roomBox.innerHTML = `<p class="room-fallback" style="padding:2rem;color:#fff">${text}</p>`;
+function roomFallback(text, err, step) {
+  const detail = err ? `<br><small style="opacity:.6">Код: ${step}: ${String(err.message || err).slice(0, 120)}</small>` : '';
+  roomBox.innerHTML = `<p class="room-fallback" style="padding:2rem;color:#fff">${text}${detail}</p>`;
   document.querySelector('.room-controls')?.setAttribute('hidden', '');
   document.getElementById('room-hint')?.setAttribute('hidden', '');
 }
 
 function startRoom() {
+  let step = 'import';
   import('./room3d.js').then(({ createRoom }) => {
+    step = 'webgl';
     let room;
     try {
       room = createRoom(roomBox);
     } catch (err) {
       roomBox.replaceChildren();
-      return roomFallback('Не удалось запустить 3D (WebGL недоступен). Планировки смотрите в галерее.');
+      return roomFallback('Не удалось запустить 3D (WebGL недоступен). Планировки смотрите в галерее.', err, 'webgl');
     }
+    step = 'controls';
     const hint = document.getElementById('room-hint');
     const bind = (attr, fn) => {
       const btns = document.querySelectorAll(`[data-${attr}]`);
@@ -216,9 +220,9 @@ function startRoom() {
     bind('time', room.setTime);
     bind('view', room.setView);
     roomBox.addEventListener('pointerdown', () => hint?.classList.add('is-hidden'), { once: true });
-  }, () => {
-    // чанк не загрузился (обрыв связи или страница из кэша старой версии): предлагаем перезагрузить
-    roomFallback('Не удалось загрузить 3D-модель. Проверьте соединение и попробуйте ещё раз.');
+  }).catch((err) => {
+    // чанк не загрузился (обрыв связи или страница из кэша старой версии) или упала инициализация
+    roomFallback('Не удалось загрузить 3D-модель. Проверьте соединение и попробуйте ещё раз.', err, step);
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'btn btn--accent';
