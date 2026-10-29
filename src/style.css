@@ -62,7 +62,7 @@ p { margin: 0 0 1em; }
 .logo { display: inline-flex; align-items: center; gap: .9em; color: var(--navy); line-height: 1; }
 .logo-icon { height: 2.9em; width: auto; overflow: visible; }
 .logo-text { display: flex; flex-direction: column; gap: .55em; }
-.logo-word { height: .95em; width: auto; overflow: visible; }
+.logo-word { height: .95em; width: auto; overflow: visible; align-self: flex-start; } /* без этого SVG растягивается на всю колонку и слово уезжает от левого края */
 .logo-slogan { font-weight: 500; font-size: .52em; line-height: 1.25; letter-spacing: 0; max-width: 17em; }
 
 /* ---------- лоадер ---------- */
