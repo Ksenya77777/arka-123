@@ -13,6 +13,9 @@ export function initScrollScene() {
   const sky = document.getElementById('scene-sky');
   const lib = document.getElementById('scene-library');
   const host = document.getElementById('scene-character');
+  // фон сайта: финальный кадр видео героя (вертикальный на телефоне)
+  const portrait = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
+  sky.style.setProperty('--bg', `url(./seq/${portrait ? 'v' : 'h'}/0121.webp)`);
 
   // силуэт Национальной библиотеки (граненый многогранник), без неба и земли
   lib.innerHTML = `<svg viewBox="-64 -66 128 132" xmlns="http://www.w3.org/2000/svg">
