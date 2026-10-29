@@ -1,11 +1,11 @@
 // Герой-«видео», которое перематывается скроллом (приём из урока про интерактивный экран).
-// Кадры лежат в public/seq/h (нарезка видео, 16:9). Страница прокручивается, кадр выбирается
+// Кадры лежат в public/seq/h (нарезка видео 16:9) и public/seq/v (вертикальное 9:16 для телефонов). Страница прокручивается, кадр выбирается
 // по прогрессу скролла внутри высокой секции .hero, canvas рисует нужный кадр.
 const FRAMES = 121;
 const START_UI = 0.06;   // до этого прогресса интерфейс героя виден
 const FINALE = 0.93;     // после этого появляется финальный блок
 const STEPS = [0, 0.08, 0.38, 0.66, FINALE]; // шаги экскурсии Арчи
-// «Умная» обрезка для узких экранов (телефон): какую часть кадра по горизонтали держать в центре.
+// «Умная» обрезка горизонтального видео на узких экранах (планшет в ландшафте, окно браузера): какую часть кадра по горизонтали держать в центре.
 // Пары [номер кадра, доля ширины]: фасад справа, дверь слева, затем зал и окно с Библиотекой.
 const FOCUS = [[1, 0.66], [20, 0.72], [40, 0.65], [52, 0.45], [60, 0.5], [75, 0.58], [100, 0.65], [121, 0.68]];
 const focusAt = (n) => {
@@ -25,8 +25,10 @@ export function initHeroScrub() {
   if (!hero || !cv) return;
   const ctx = cv.getContext('2d', { alpha: false });
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // одна последовательность для всех экранов: на телефоне canvas обрезает кадр по центру
-  const src = (i) => `./seq/h/${String(i).padStart(4, '0')}.webp`;
+  // на портретном экране (телефон) берём вертикальное видео, иначе горизонтальное
+  const portrait = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
+  const dir = portrait ? 'v' : 'h';
+  const src = (i) => `./seq/${dir}/${String(i).padStart(4, '0')}.webp`;
 
   const imgs = new Array(FRAMES + 1);
   const loaded = new Array(FRAMES + 1).fill(false);
@@ -65,7 +67,7 @@ export function initHeroScrub() {
   function draw(f) {
     const a = nearest(Math.min(FRAMES, Math.floor(f) + 1));
     if (!a) return;
-    const fx = focusAt(f + 1);
+    const fx = portrait ? 0.5 : focusAt(f + 1); // у вертикального видео кадр уже скомпонован под телефон
     cover(imgs[a], 1, fx);
     const frac = f - Math.floor(f);
     const b = Math.min(FRAMES, Math.floor(f) + 2);
