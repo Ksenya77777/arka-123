@@ -344,6 +344,7 @@ html.menu-open { overflow: hidden; }
   .logo { font-size: .85rem; }
   .loader .logo { flex-direction: column; text-align: center; }
   .loader .logo-text { align-items: center; }
+  .loader .logo-word { align-self: center; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
