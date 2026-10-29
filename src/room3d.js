@@ -453,5 +453,11 @@ export function createRoom(container) {
     if (visible && !raf) raf = requestAnimationFrame(loop);
   }, { rootMargin: '100px' }).observe(container);
 
-  return { setScenario, setTime, setView };
+  // на телефоне вращение включается кнопкой: иначе палец по 3D не даёт прокрутить страницу
+  const setTouch = (on) => {
+    controls.enabled = on;
+    renderer.domElement.style.touchAction = on ? 'none' : 'auto';
+  };
+
+  return { setScenario, setTime, setView, setTouch };
 }

@@ -80,43 +80,72 @@ function mountBeforeAfter() {
 function mountGallery() {
   const grid = document.getElementById('gallery-grid');
   grid.innerHTML = PHOTOS.map((p) => `
-    <button class="shot ${p.cls ?? ''}" type="button" data-src="./photos/${p.id}.webp" data-cap="${p.title}">
+    <button class="shot zoomable ${p.cls ?? ''}" type="button" data-zoom data-group="gallery" data-src="./photos/${p.id}.webp" data-cap="${p.title}" aria-label="Открыть фото крупнее: ${p.title}">
       <img src="./photos/${p.id}.webp" alt="${p.title}" loading="lazy">
       <figcaption>${p.title}</figcaption>
     </button>`).join('');
-
-  const box = document.getElementById('lightbox');
-  const img = document.getElementById('lightbox-img');
-  const cap = document.getElementById('lightbox-cap');
-  grid.addEventListener('click', (e) => {
-    const b = e.target.closest('.shot');
-    if (!b) return;
-    img.src = b.dataset.src;
-    img.alt = b.dataset.cap;
-    cap.textContent = b.dataset.cap;
-    box.showModal();
-  });
-  document.getElementById('lightbox-close').addEventListener('click', () => box.close());
-  box.addEventListener('click', (e) => { if (e.target === box) box.close(); });
 
   // планировки (иллюстрации сценариев расстановки)
   document.getElementById('plans-grid').innerHTML = Object.values(layouts).map((l) => `
     <figure class="plan">${l.svg()}<figcaption><b>${l.title}</b><span>${l.note}</span></figcaption></figure>`).join('');
 }
 
-function initBooking() {
-  const form = document.getElementById('booking-form');
-  const msg = document.getElementById('form-msg');
-  const select = document.getElementById('tariff-select');
+// Лайтбокс для всех фото с атрибутом data-zoom: листается внутри своей группы (галерея, «о нас», зал)
+function initLightbox() {
+  const box = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  const cap = document.getElementById('lightbox-cap');
+  const prev = document.getElementById('lightbox-prev');
+  const next = document.getElementById('lightbox-next');
+  let items = [];
+  let cur = 0;
+
+  const show = () => {
+    const it = items[cur];
+    img.src = it.dataset.src;
+    img.alt = it.dataset.cap;
+    cap.textContent = items.length > 1 ? `${it.dataset.cap} · ${cur + 1} из ${items.length}` : it.dataset.cap;
+    prev.hidden = next.hidden = items.length < 2;
+  };
+  const step = (d) => { cur = (cur + d + items.length) % items.length; show(); };
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-zoom]');
+    if (!b) return;
+    items = [...document.querySelectorAll(`[data-zoom][data-group="${b.dataset.group}"]`)];
+    cur = items.indexOf(b);
+    show();
+    box.showModal();
+  });
+  document.getElementById('lightbox-close').addEventListener('click', () => box.close());
+  prev.addEventListener('click', () => step(-1));
+  next.addEventListener('click', () => step(1));
+  // клик по тёмному фону закрывает окно
+  box.addEventListener('click', (e) => { if (e.target === box) box.close(); });
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+  // свайп пальцем: влево, следующее фото; вправо, предыдущее
+  let x0 = null;
+  box.addEventListener('touchstart', (e) => { x0 = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
+  box.addEventListener('touchend', (e) => {
+    if (x0 === null || items.length < 2) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    x0 = null;
+    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+  }, { passive: true });
+}
+
+let formUid = 0;
+function setupBookingForm(form) {
+  const uid = ++formUid;
+  const msg = form.querySelector('.form-msg');
   const date = form.elements.date;
   // сегодняшняя дата по местному времени, а не по UTC
   const now = new Date();
   const today = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   date.min = today;
-
-  document.querySelectorAll('[data-tariff]').forEach((a) => a.addEventListener('click', () => {
-    select.value = a.dataset.tariff;
-  }));
 
   const rules = {
     name: [(v) => v.trim().length > 0, 'Укажите имя'],
@@ -128,7 +157,7 @@ function initBooking() {
     const el = form.elements[f];
     const err = document.createElement('span');
     err.className = 'field-err';
-    err.id = `err-${f}`;
+    err.id = `err-${f}-${uid}`;
     el.after(err);
     el.setAttribute('aria-describedby', err.id);
   }
@@ -140,7 +169,7 @@ function initBooking() {
       const el = form.elements[f];
       const bad = !valid(el.value);
       el.setAttribute('aria-invalid', bad);
-      document.getElementById(`err-${f}`).textContent = bad ? text : '';
+      document.getElementById(`err-${f}-${uid}`).textContent = bad ? text : '';
       if (bad && !first) first = el;
     }
     if (first) {
@@ -151,24 +180,57 @@ function initBooking() {
     msg.textContent = 'Спасибо! Это демонстрационная форма: заявка никуда не отправляется.';
     form.reset();
   });
+  return form;
+}
+
+// Кнопки «Забронировать» и «Выбрать» открывают окно с формой, а не прокручивают страницу вниз
+function initBooking() {
+  const pageForm = document.querySelector('#booking .booking-form');
+  const modal = document.getElementById('booking-modal');
+  const modalForm = pageForm.cloneNode(true); // копия до инициализации, без лишних элементов
+  document.getElementById('booking-modal-body').append(modalForm);
+  setupBookingForm(pageForm);
+  setupBookingForm(modalForm);
+
+  const closeMenu = () => document.getElementById('burger')?.dispatchEvent(new CustomEvent('menu:close'));
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-open-booking]');
+    if (!a) return;
+    e.preventDefault();
+    closeMenu();
+    if (a.dataset.tariff) {
+      modalForm.elements.tariff.value = a.dataset.tariff;
+      pageForm.elements.tariff.value = a.dataset.tariff;
+    }
+    modalForm.querySelector('.form-msg').textContent = '';
+    modal.showModal();
+  });
+  document.getElementById('booking-modal-close').addEventListener('click', () => modal.close());
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
 }
 
 function initMenu() {
   const burger = document.getElementById('burger');
   const nav = document.getElementById('nav');
+  nav.querySelectorAll('a').forEach((a, i) => a.style.setProperty('--i', i));
   const set = (open) => {
     nav.classList.toggle('is-open', open);
     burger.setAttribute('aria-expanded', open);
     burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+    document.documentElement.classList.toggle('menu-open', open); // страница под меню не прокручивается
   };
   burger.addEventListener('click', () => set(!nav.classList.contains('is-open')));
+  burger.addEventListener('menu:close', () => set(false));
   nav.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+  // при расширении окна до десктопа меню закрывается
+  window.matchMedia('(min-width: 861px)').addEventListener('change', (e) => { if (e.matches) set(false); });
 }
 
 mountLogos();
 runLoader();
 mountGallery();
+initLightbox();
 mountBeforeAfter();
 initBooking();
 initMenu();
@@ -216,6 +278,22 @@ function startRoom() {
         hint?.classList.add('is-hidden');
       }));
     };
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      // на телефоне палец по 3D листает страницу; вращение включается отдельной кнопкой
+      const lock = document.createElement('button');
+      lock.type = 'button';
+      lock.className = 'room-lock';
+      const setTouch = (on) => {
+        room.setTouch(on);
+        lock.setAttribute('aria-pressed', on);
+        lock.textContent = on ? 'Вернуть прокрутку' : 'Вращать зал';
+        if (hint) hint.textContent = on ? 'Тяните пальцем, чтобы осмотреться' : 'Страница прокручивается как обычно. Нажмите «Вращать зал», чтобы осмотреться';
+        if (hint) hint.classList.remove('is-hidden');
+      };
+      lock.addEventListener('click', () => setTouch(lock.getAttribute('aria-pressed') !== 'true'));
+      document.getElementById('room-box').append(lock);
+      setTouch(false);
+    }
     bind('scenario', room.setScenario);
     bind('time', room.setTime);
     bind('view', room.setView);

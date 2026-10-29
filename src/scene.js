@@ -109,11 +109,17 @@ export function initScrollScene() {
   stops.forEach((s, i) => {
     tl.to(host, { x: s.x, y: s.y, rotation: s.rotate, scale: s.scale, duration: 1, ease: 'sine.inOut' }, i === 0 ? '>' : '>');
   });
+  // у подвала хозяйка уходит, чтобы не закрывать адрес и текст
+  ScrollTrigger.create({
+    trigger: '.footer', start: 'top 85%',
+    onEnter: () => gsap.to(host, { opacity: 0, duration: 0.3, overwrite: 'auto' }),
+    onLeaveBack: () => gsap.to(host, { opacity: 1, duration: 0.3, overwrite: 'auto' }),
+  });
   // после загрузки шрифтов высоты блоков меняются
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
   // мягкое появление контента блоков
-  gsap.utils.toArray('.section > .wrap > *').forEach((el) => {
+  gsap.utils.toArray('.section > .wrap > *:not(.note)').forEach((el) => {
     el.classList.add('reveal');
     gsap.to(el, {
       opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',

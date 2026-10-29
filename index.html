@@ -15,7 +15,7 @@
   <link rel="preload" as="image" href="./seq/v/0001.webp" media="(max-aspect-ratio: 1/1)" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
   <script type="module" src="/src/main.js"></script>
 </head>
 <body>
@@ -41,7 +41,7 @@
         <a href="#gallery">Галерея</a>
         <a href="#reviews">Отзывы</a>
       </nav>
-      <a class="btn btn--solid header-cta" href="#booking">Забронировать</a>
+      <a class="btn btn--solid header-cta" href="#booking" data-open-booking>Забронировать</a>
       <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav" aria-label="Открыть меню"><span></span><span></span></button>
     </div>
   </header>
@@ -57,7 +57,7 @@
             <h1>Встречаемся напротив&nbsp;Библиотеки</h1>
             <p class="hero-lead">Светлый зал 123&nbsp;м² с арочными окнами 4×3,5&nbsp;м, из которых видно Национальную библиотеку.</p>
             <div class="hero-actions">
-              <a class="btn btn--accent" href="#booking">Забронировать дату</a>
+              <a class="btn btn--accent" href="#booking" data-open-booking>Забронировать дату</a>
               <a class="btn btn--light" href="#space">Смотреть зал в 3D</a>
             </div>
             <ul class="chips">
@@ -69,7 +69,7 @@
         <p class="ai-note">Пролёт камеры создан нейросетью (Seedance) по фото помещения, интерьер приблизительный.</p>
         <div class="finale">
           <p>Вот он, вид из окон. Встречаемся напротив Библиотеки.</p>
-          <a class="btn btn--accent" href="#booking">Забронировать дату</a>
+          <a class="btn btn--accent" href="#booking" data-open-booking>Забронировать дату</a>
         </div>
       </div>
     </section>
@@ -90,8 +90,12 @@
             </ul>
           </div>
           <div class="about-photos">
-            <img class="about-main" src="./photos/p07.webp" alt="Арочное окно зала с видом на Национальную библиотеку" loading="lazy" width="900" height="1600">
-            <img class="about-sub" src="./photos/p16.webp" alt="Фасад дома с арочными окнами, в котором находится АРКА 123" loading="lazy" width="1600" height="900">
+            <button class="zoom zoomable about-main-btn" type="button" data-zoom data-group="about" data-src="./photos/p07.webp" data-cap="Арочное окно зала с видом на Национальную библиотеку" aria-label="Открыть фото крупнее: арочное окно с видом на Библиотеку">
+              <img class="about-main" src="./photos/p07.webp" alt="Арочное окно зала с видом на Национальную библиотеку" loading="lazy" width="900" height="1600">
+            </button>
+            <button class="zoom zoomable about-sub-btn" type="button" data-zoom data-group="about" data-src="./photos/p16.webp" data-cap="Фасад дома с арочными окнами, в котором находится АРКА 123" aria-label="Открыть фото крупнее: фасад дома">
+              <img class="about-sub" src="./photos/p16.webp" alt="Фасад дома с арочными окнами, в котором находится АРКА 123" loading="lazy" width="1600" height="900">
+            </button>
           </div>
         </div>
       </div>
@@ -140,10 +144,18 @@
         <div class="real-strip">
           <h3>Как это выглядит на самом деле</h3>
           <div class="strip">
-            <img src="./photos/p04.webp" alt="Зал с арочными окнами и светильниками на потолке" loading="lazy" width="900" height="1600">
-            <img src="./photos/p11.webp" alt="Ресепшен-стойка в зале" loading="lazy" width="900" height="1600">
-            <img src="./photos/p10.webp" alt="Паркет «ёлочка» и стеклянные перегородки" loading="lazy" width="900" height="1600">
-            <img src="./photos/p08.webp" alt="Вид из окна на променад" loading="lazy" width="900" height="1600">
+            <button class="zoom zoomable" type="button" data-zoom data-group="space" data-src="./photos/p04.webp" data-cap="Зал с арочными окнами и светильниками на потолке" aria-label="Открыть фото крупнее: Зал с арочными окнами и светильниками на потолке">
+              <img src="./photos/p04.webp" alt="Зал с арочными окнами и светильниками на потолке" loading="lazy" width="900" height="1600">
+            </button>
+            <button class="zoom zoomable" type="button" data-zoom data-group="space" data-src="./photos/p11.webp" data-cap="Ресепшен-стойка в зале" aria-label="Открыть фото крупнее: Ресепшен-стойка в зале">
+              <img src="./photos/p11.webp" alt="Ресепшен-стойка в зале" loading="lazy" width="900" height="1600">
+            </button>
+            <button class="zoom zoomable" type="button" data-zoom data-group="space" data-src="./photos/p10.webp" data-cap="Паркет «ёлочка» и стеклянные перегородки" aria-label="Открыть фото крупнее: Паркет «ёлочка» и стеклянные перегородки">
+              <img src="./photos/p10.webp" alt="Паркет «ёлочка» и стеклянные перегородки" loading="lazy" width="900" height="1600">
+            </button>
+            <button class="zoom zoomable" type="button" data-zoom data-group="space" data-src="./photos/p08.webp" data-cap="Вид из окна на променад" aria-label="Открыть фото крупнее: Вид из окна на променад">
+              <img src="./photos/p08.webp" alt="Вид из окна на променад" loading="lazy" width="900" height="1600">
+            </button>
           </div>
         </div>
       </div>
@@ -174,20 +186,20 @@
             <h3>Час</h3>
             <p class="price">60<span> BYN / час</span></p>
             <ul><li>от 2 часов</li><li>проектор и экран</li><li>мебель под формат</li></ul>
-            <a class="btn" href="#booking" data-tariff="Час">Выбрать</a>
+            <a class="btn" href="#booking" data-open-booking data-tariff="Час">Выбрать</a>
           </article>
           <article class="tariff tariff--main">
             <span class="badge">Выбирают чаще</span>
             <h3>Полдня</h3>
             <p class="price">220<span> BYN / 4 часа</span></p>
             <ul><li>подготовка зала в подарок</li><li>проектор, экран, звук</li><li>администратор на 1 час</li></ul>
-            <a class="btn btn--accent" href="#booking" data-tariff="Полдня">Выбрать</a>
+            <a class="btn btn--accent" href="#booking" data-open-booking data-tariff="Полдня">Выбрать</a>
           </article>
           <article class="tariff">
             <h3>Весь день</h3>
             <p class="price">380<span> BYN / 8 часов</span></p>
             <ul><li>всё из тарифа «Полдня»</li><li>кофе-зона для гостей</li><li>скидка 10% на фотографа</li></ul>
-            <a class="btn" href="#booking" data-tariff="Весь день">Выбрать</a>
+            <a class="btn" href="#booking" data-open-booking data-tariff="Весь день">Выбрать</a>
           </article>
         </div>
       </div>
@@ -212,9 +224,9 @@
         <p class="eyebrow">Отзывы</p>
         <h2>Что говорят организаторы</h2>
         <div class="reviews">
-          <figure class="review"><blockquote>Окна такие, что слушатели во время перерыва не отрываются от вида. Презентация на проекторе читалась идеально.</blockquote><figcaption><b>Алина</b>, кулинарный мастер-класс</figcaption></figure>
-          <figure class="review"><blockquote>Поставили шесть столов, зал за полчаса преобразился. Администратор помог со звуком, всё прошло без накладок.</blockquote><figcaption><b>Дмитрий</b>, практикум по керамике</figcaption></figure>
-          <figure class="review"><blockquote>Клиентам сразу сказали: «встречаемся напротив Библиотеки», и никто не заблудился. Очень удобное место.</blockquote><figcaption><b>Екатерина</b>, воркшоп по брендингу</figcaption></figure>
+          <figure class="review"><blockquote>Окна такие, что слушатели во время перерыва не отрываются от вида. Презентация на проекторе читалась идеально.</blockquote><figcaption><b>Алина</b><span>кулинарный мастер-класс</span></figcaption></figure>
+          <figure class="review"><blockquote>Поставили шесть столов, зал за полчаса преобразился. Администратор помог со звуком, всё прошло без накладок.</blockquote><figcaption><b>Дмитрий</b><span>практикум по керамике</span></figcaption></figure>
+          <figure class="review"><blockquote>Клиентам сразу сказали: «встречаемся напротив Библиотеки», и никто не заблудился. Очень удобное место.</blockquote><figcaption><b>Екатерина</b><span>воркшоп по брендингу</span></figcaption></figure>
         </div>
         <p class="note">Отзывы вымышленные, написаны для демонстрации макета.</p>
       </div>
@@ -228,17 +240,17 @@
             <h2>Забронируйте дату</h2>
             <p>Оставьте заявку, мы ответим в течение часа в рабочее время и подтвердим доступность зала.</p>
           </div>
-          <form id="booking-form" novalidate>
+          <form class="booking-form" novalidate>
             <label>Ваше имя<input name="name" autocomplete="name" required></label>
             <label>Телефон<input name="phone" type="tel" autocomplete="tel" placeholder="+375 ..." required></label>
             <label>Дата<input name="date" type="date" required></label>
             <label>Тариф
-              <select name="tariff" id="tariff-select">
+              <select name="tariff">
                 <option>Час</option><option selected>Полдня</option><option>Весь день</option>
               </select>
             </label>
             <button class="btn btn--solid" type="submit">Отправить заявку</button>
-            <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+            <p class="form-msg" role="status" aria-live="polite"></p>
           </form>
         </div>
       </div>
@@ -256,9 +268,21 @@
     </div>
   </footer>
 
+  <dialog class="modal" id="booking-modal" aria-labelledby="booking-modal-title">
+    <div class="modal-in">
+      <button class="modal-close" id="booking-modal-close" type="button" aria-label="Закрыть">×</button>
+      <p class="eyebrow">Бронирование</p>
+      <h2 id="booking-modal-title">Забронируйте дату</h2>
+      <p class="modal-lead">Оставьте заявку, мы ответим в течение часа в рабочее время.</p>
+      <div id="booking-modal-body"></div>
+    </div>
+  </dialog>
+
   <dialog class="lightbox" id="lightbox" aria-label="Просмотр фотографии">
     <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Закрыть">×</button>
+    <button class="lightbox-nav lightbox-prev" id="lightbox-prev" type="button" aria-label="Предыдущее фото">‹</button>
     <img id="lightbox-img" alt="">
+    <button class="lightbox-nav lightbox-next" id="lightbox-next" type="button" aria-label="Следующее фото">›</button>
     <p id="lightbox-cap"></p>
   </dialog>
 </body>
