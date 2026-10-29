@@ -1,0 +1,25 @@
+[Unit]
+Description=ARKA 123: backend заявок (портфолио)
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/arka-backend
+Environment=ARKA_DATA=/var/lib/arka-backend
+Environment=ARKA_HOST=127.0.0.1
+Environment=ARKA_PORT=8123
+ExecStart=/usr/bin/python3 /opt/arka-backend/app.py
+Restart=on-failure
+RestartSec=3
+StateDirectory=arka-backend
+StateDirectoryMode=0700
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ReadWritePaths=/var/lib/arka-backend
+
+[Install]
+WantedBy=multi-user.target

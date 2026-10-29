@@ -239,6 +239,12 @@
             <p class="eyebrow">Бронирование</p>
             <h2>Забронируйте дату</h2>
             <p>Оставьте заявку, мы ответим в течение часа в рабочее время и подтвердим доступность зала.</p>
+            <form class="status-check" id="status-check" novalidate hidden>
+              <h3>Уже оставляли заявку?</h3>
+              <label>Код заявки<input name="code" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="например, A7K2PQ"></label>
+              <button class="btn" type="submit">Проверить статус</button>
+              <p class="form-msg" role="status" aria-live="polite"></p>
+            </form>
           </div>
           <form class="booking-form" novalidate>
             <label>Ваше имя<input name="name" autocomplete="name" required></label>
@@ -249,6 +255,8 @@
                 <option>Час</option><option selected>Полдня</option><option>Весь день</option>
               </select>
             </label>
+            <label class="hp" aria-hidden="true">Сайт<input name="website" tabindex="-1" autocomplete="off"></label>
+            <p class="form-note" hidden>Демо-версия для портфолио: не вводите настоящие данные. Заявки хранятся 30 дней и видны только владельцу сайта.</p>
             <button class="btn btn--solid" type="submit">Отправить заявку</button>
             <p class="form-msg" role="status" aria-live="polite"></p>
           </form>

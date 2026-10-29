@@ -2,6 +2,7 @@ import gsap from 'gsap';
 import './style.css';
 import { logoSVG, logoTimeline, attachHover } from './logo.js';
 import { layouts } from './layouts.js';
+import { hasApi, sendRequest, fetchStatus, loadSaved, saveRequest, STATUS_TEXT, notice } from './booking-api.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -137,10 +138,60 @@ function initLightbox() {
   }, { passive: true });
 }
 
+// всплывающее уведомление внизу экрана
+function toast(text) {
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.setAttribute('role', 'status');
+  t.textContent = text;
+  t.addEventListener('click', () => t.remove());
+  document.body.append(t);
+  setTimeout(() => t.remove(), 12000);
+}
+
+// После отправки заявки следим за её статусом: когда админ нажмёт «Принять», клиент увидит уведомление
+let watchTimer = 0;
+function watchRequest(code) {
+  clearInterval(watchTimer);
+  const check = async () => {
+    const saved = loadSaved();
+    if (!saved || saved.code !== code) return clearInterval(watchTimer);
+    const r = await fetchStatus(code);
+    if (!r.ok) return;
+    if (r.data.status !== saved.last) {
+      saveRequest({ code, last: r.data.status });
+      const text = notice(code, r.data);
+      if (text) toast(text);
+    }
+    if (r.data.status !== 'new') clearInterval(watchTimer);
+  };
+  check();
+  watchTimer = setInterval(() => { if (!document.hidden) check(); }, 15000);
+}
+
+function initStatusCheck() {
+  const form = document.getElementById('status-check');
+  if (!form || !hasApi) return;
+  form.hidden = false;
+  const msg = form.querySelector('.form-msg');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = form.elements.code.value.trim().toUpperCase();
+    if (!/^[A-Z0-9]{6}$/.test(code)) { msg.textContent = 'Код состоит из 6 символов, например A7K2PQ'; return; }
+    msg.textContent = 'Проверяем…';
+    const r = await fetchStatus(code);
+    msg.textContent = r.ok ? `Заявка №${code}: ${STATUS_TEXT[r.data.status]}. ${notice(code, r.data) ? '' : 'Мы напишем здесь, когда её подтвердят.'}` : (r.data.error || 'Не удалось проверить');
+  });
+  const saved = loadSaved();
+  if (saved) { form.elements.code.value = saved.code; watchRequest(saved.code); }
+}
+
 let formUid = 0;
 function setupBookingForm(form) {
   const uid = ++formUid;
   const msg = form.querySelector('.form-msg');
+  form.querySelector('.form-note')?.toggleAttribute('hidden', !hasApi);
   const date = form.elements.date;
   // сегодняшняя дата по местному времени, а не по UTC
   const now = new Date();
@@ -162,7 +213,7 @@ function setupBookingForm(form) {
     el.setAttribute('aria-describedby', err.id);
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     let first = null;
     for (const [f, [valid, text]] of Object.entries(rules)) {
@@ -177,8 +228,33 @@ function setupBookingForm(form) {
       first.focus();
       return;
     }
-    msg.textContent = 'Спасибо! Это демонстрационная форма: заявка никуда не отправляется.';
-    form.reset();
+    if (!hasApi) {
+      msg.textContent = 'Спасибо! Это демонстрационная форма: заявка никуда не отправляется.';
+      form.reset();
+      return;
+    }
+    const btn = form.querySelector('[type="submit"]');
+    btn.disabled = true;
+    msg.textContent = 'Отправляем…';
+    const r = await sendRequest(Object.fromEntries(new FormData(form)));
+    btn.disabled = false;
+    if (r.ok) {
+      const code = r.data.code;
+      msg.textContent = `Заявка №${code} отправлена. Статус: ожидает подтверждения. Запомните код: когда заявку примут, на сайте появится уведомление.`;
+      saveRequest({ code, last: 'new' });
+      watchRequest(code);
+      document.getElementById('status-check')?.elements.code && (document.getElementById('status-check').elements.code.value = code);
+      form.reset();
+    } else if (r.data.errors) {
+      for (const [f, text] of Object.entries(r.data.errors)) {
+        const errEl = document.getElementById(`err-${f}-${uid}`);
+        form.elements[f]?.setAttribute('aria-invalid', 'true');
+        if (errEl) errEl.textContent = text;
+      }
+      msg.textContent = '';
+    } else {
+      msg.textContent = r.data.error || 'Не удалось отправить заявку. Попробуйте позже.';
+    }
   });
   return form;
 }
@@ -227,12 +303,24 @@ function initMenu() {
   window.matchMedia('(min-width: 861px)').addEventListener('change', (e) => { if (e.matches) set(false); });
 }
 
+// версия на сайте-портфолио: сверху ссылка обратно
+const PORTFOLIO_URL = import.meta.env.VITE_PORTFOLIO_URL;
+if (PORTFOLIO_URL) {
+  const bar = document.createElement('a');
+  bar.className = 'portfolio-bar';
+  bar.href = PORTFOLIO_URL;
+  bar.innerHTML = '<span aria-hidden="true">←</span> Вернуться на сайт портфолио';
+  document.body.prepend(bar);
+  document.documentElement.classList.add('has-bar');
+}
+
 mountLogos();
 runLoader();
 mountGallery();
 initLightbox();
 mountBeforeAfter();
 initBooking();
+initStatusCheck();
 initMenu();
 
 const header = document.getElementById('header');
